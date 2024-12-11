@@ -7,8 +7,9 @@ import { ComponentService } from '@services/component.service';
 import { ComponentTypeId } from '@constants/componentTypes';
 import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { IComponentGetResultService } from 'types/services/component.service';
+import { AppStore } from '@lib/store';
 
-const init = async (params: IPageGetParamUtil) => {
+const init = async (store: AppStore, params: IPageGetParamUtil) => {
   const serviceResultPage = await PostService.getWithURL({
     langId: params.req.appData.selectedLangId,
     typeId: PostTypeId.Page,
@@ -38,7 +39,7 @@ const init = async (params: IPageGetParamUtil) => {
   }
 };
 
-const initPrivateComponents = async (req: IncomingMessage) => {
+const initPrivateComponents = async (store: AppStore, req: IncomingMessage) => {
   req.pageData.privateComponents = [];
 
   if (req.pageData.page && req.pageData.page.components) {
@@ -57,7 +58,8 @@ const initPrivateComponents = async (req: IncomingMessage) => {
   }
 };
 
-const initPublicComponents = async (req: IncomingMessage) => {
+
+const initPublicComponents = async (store: AppStore, req: IncomingMessage) => {
   req.pageData.publicComponents = [];
 
   const serviceResult = await ComponentService.getMany({

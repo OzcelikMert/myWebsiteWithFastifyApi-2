@@ -20,6 +20,7 @@
   "dependencies": {
     "@fontsource/barlow": "^5.1.0",
     "@mdi/font": "^7.4.47",
+    "@reduxjs/toolkit": "^2.5.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "concurrently": "^9.0.1",
@@ -36,6 +37,7 @@
     "moment": "^2.30.1",
     "next": "^14.2.15",
     "next-absolute-url": "^1.2.2",
+    "next-redux-wrapper": "^8.1.0",
     "node-html-parser": "^6.1.13",
     "react": "^18.3.1",
     "react-animation-on-scroll": "^5.1.0",
@@ -46,6 +48,7 @@
     "react-dom": "^18.3.1",
     "react-i18next": "^15.0.3",
     "react-lazy-load-image-component": "^1.6.2",
+    "react-redux": "^9.2.0",
     "react-refresh": "^0.14.2",
     "react-responsive-carousel": "^3.2.23",
     "react-router": "^6.27.0",

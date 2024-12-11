@@ -10,96 +10,65 @@ import '@library/variable/date';
 import '@library/variable/math';
 
 import ComponentApp from '@components/app';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 import { PageSSRUtil } from '@utils/page.ssr.util';
 import { SettingService } from '@services/setting.service';
-import { IComponentGetResultService } from 'types/services/component.service';
-import { ComponentKey } from '@constants/componentKeys';
 import { LanguageSSRUtil } from '@utils/language.ssr.util';
 import { UrlSSRUtil } from '@utils/url.ssr.util';
-
-async function i18Init(staticContents: IComponentGetResultService) {
-  const language = i18n.use(initReactI18next);
-  await language.init({
-    resources: {
-      default: {
-        translation:
-          staticContents.elements.reduce(
-            (a: any, v) => ({
-              ...a,
-              [v.key]: v.contents?.content || '',
-            }),
-            {}
-          ) || {},
-      },
-    },
-    keySeparator: false,
-    lng: 'default',
-    fallbackLng: 'default',
-    interpolation: {
-      escapeValue: false,
-    },
-  });
-
-  return language.t;
-}
+import { wrapper } from '@lib/store';
+import StoreProvider from '@components/providers/storeProvider';
 
 function App(props: AppProps) {
-  const componentStaticContents =
-    props.pageProps.pageData.publicComponents.findSingle(
-      'key',
-      ComponentKey.StaticContents
-    );
-  if (componentStaticContents) {
-    i18Init(componentStaticContents);
-  }
+  const { pageProps, Component, router } = props;
   return (
-    <ComponentApp
-      {...props.pageProps}
-      Component={props.Component}
-      router={props.router}
-    />
+    <StoreProvider pageProps={pageProps}>
+      <ComponentApp {...pageProps} Component={Component} router={router} />
+    </StoreProvider>
   );
 }
 
-App.getInitialProps = async (props: AppContext) => {
-  if (typeof window === 'undefined' && props.ctx.req && props.ctx.res) {
-    const req = props.ctx.req;
-    const res = props.ctx.res;
+App.getInitialProps = wrapper.getInitialAppProps(
+  (store) => async (props: AppContext) => {
+    if (typeof window === 'undefined' && props.ctx.req && props.ctx.res) {
+      const req = props.ctx.req;
+      const res = props.ctx.res;
 
-    req.pageData = {};
-    req.appData = {};
-    req.getURL = UrlSSRUtil.get(req);
-    console.log(req.getURL);
+      req.pageData = {};
+      req.appData = {};
+      req.getURL = UrlSSRUtil.get(req);
+      console.log(req.getURL);
 
-    req.pageData.isSitemap =
-      req.getURL.asPath.includes('/sitemap.xml') ||
-      req.getURL.asPath.includes('/sitemaps/');
+      req.pageData.isSitemap =
+        req.getURL.asPath.includes('/sitemap.xml') ||
+        req.getURL.asPath.includes('/sitemaps/');
 
-    if (!req.pageData.isSitemap) {
-      await PageSSRUtil.initPublicComponents(req);
-    }
+      if (!req.pageData.isSitemap) {
+        await PageSSRUtil.initPublicComponents(req);
+      }
 
-    const isLangInit = await LanguageSSRUtil.init(req, res);
-    if (!isLangInit) {
-      return {};
-    }
+      const isLangInit = await LanguageSSRUtil.init(req, res);
+      if (!isLangInit) {
+        return {
+          pageProps: {}
+        };
+      }
 
-    const serviceResultSettings = await SettingService.get({
-      langId: req.appData.selectedLangId,
-    });
+      const serviceResultSettings = await SettingService.get({
+        langId: req.appData.selectedLangId,
+      });
 
-    if (serviceResultSettings.status && serviceResultSettings.data) {
-      req.appData.settings = serviceResultSettings.data;
+      if (serviceResultSettings.status && serviceResultSettings.data) {
+        req.appData.settings = serviceResultSettings.data;
+      }
+
+      return {
+        pageProps: PageSSRUtil.getProps(req),
+      };
     }
 
     return {
-      pageProps: PageSSRUtil.getProps(req),
+      pageProps: {}
     };
   }
+);
 
-  return {};
-};
-
-export default App;
+export default wrapper.withRedux(App);
