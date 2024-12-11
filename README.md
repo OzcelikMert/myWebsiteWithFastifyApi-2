@@ -1,2 +1,4 @@
-# myWebsiteWithFastifyApi-2
-myWebsiteWithFastifyApi-2 for Functional component
+# myWebsiteWithFastifyApi
+My Website theme Using NextJS For Fastify API
+
+Things to do:

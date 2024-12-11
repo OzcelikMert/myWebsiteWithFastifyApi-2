@@ -1,0 +1,45 @@
+/*************
+#Blog
+***************/
+
+.page-blog {
+  .content {
+    overflow: hidden;
+
+    img {
+      @extend .img-fluid;
+    }
+  }
+
+  .content-bottom {
+    .categories .blog-category-badges a {
+      font-size: 13px;
+      border-radius: 2rem;
+    }
+
+    .avatar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      box-shadow: 1px 1px 7px #000000c7;
+    }
+
+    .author {
+      font-size: 14px;
+    }
+
+    .author a {
+      font-weight: bolder;
+    }
+
+    .date {
+      font-size: 12px;
+    }
+  }
+
+  .prev-next {
+    .date {
+      font-size: 13px;
+    }
+  }
+}
