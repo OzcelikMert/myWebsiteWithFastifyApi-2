@@ -24,7 +24,7 @@ type IComponentProps = {
 };
 
 function ComponentThemeFooter({component}: IComponentProps) {
-  const { appState } = useAppSelector(state => state);
+  const appState = useAppSelector(state => state.appState);
 
   const Languages = () => {
     return (

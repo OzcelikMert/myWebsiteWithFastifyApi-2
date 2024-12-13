@@ -23,8 +23,8 @@ export default function ComponentAppLayout({
   headerContent,
   headerButtons,
 }: IComponentProps) {
-  const { appState, pageState, translationState } = useAppSelector(
-    (state) => state
+  const pageState = useAppSelector(
+    (state) => state.pageState
   );
 
   const subscribeComponent = pageState.publicComponents?.findSingle(

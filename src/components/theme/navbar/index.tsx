@@ -23,7 +23,7 @@ type IComponentProps = {
 function ComponentThemeNavbar({component}: IComponentProps) {
   const [isNavbarSticky, setIsNavbarSticky] = useState<IComponentState["isNavbarSticky"]>(false);
   const [navbarStatus, setNavbarStatus] = useState<IComponentState["navbarStatus"]>({});
-  const { appState } = useAppSelector(state => state);
+  const appState = useAppSelector(state => state.appState);
 
   useEffect(() => {
     setEvents();

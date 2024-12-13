@@ -5,7 +5,7 @@ import { useAppSelector } from '@lib/hooks';
 type IComponentProps = {};
 
 export default function ComponentThemeSelectedComponents({}: IComponentProps) {
-  const { pageState } = useAppSelector(state => state);
+  const pageState = useAppSelector(state => state.pageState);
 
   const getElement = (component: IComponentGetResultService) => {
     let element = <div></div>;

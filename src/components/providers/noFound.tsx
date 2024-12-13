@@ -8,7 +8,7 @@ type IComponentProps = {
 };
 
 export default function ProviderNoFound({children}: IComponentProps) {
-  const {pageState} = useAppSelector(state => state);
+  const pageState = useAppSelector(state => state.pageState);
 
   if (!pageState.page) {
     const component404 = pageState.publicComponents.findSingle(
