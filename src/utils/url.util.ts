@@ -1,9 +1,9 @@
-import { IGetURL } from 'types/pageProps';
 import { ILanguageGetResultService } from 'types/services/language.service';
 import { LanguageUtil } from '@utils/language.util';
+import { IURL } from '@lib/features/appSlice';
 
 const replaceLanguageCode = (params: {
-  url: IGetURL;
+  url: IURL;
   newLanguage?: ILanguageGetResultService;
   withBase?: boolean;
 }) => {
@@ -41,7 +41,7 @@ const getLanguageCode = (url: string): string | null => {
 };
 
 const createHref = (params: {
-  url: IGetURL;
+  url: IURL;
   targetPath?: string;
   withAsPath?: boolean;
   withBase?: boolean;

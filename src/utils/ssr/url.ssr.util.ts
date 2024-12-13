@@ -1,8 +1,8 @@
+import { IURL } from '@lib/features/appSlice';
 import { IncomingMessage, ServerResponse } from 'http';
 import absoluteUrl from 'next-absolute-url';
-import { IGetURL } from 'types/pageProps';
 
-const get = (req: IncomingMessage): IGetURL => {
+const get = (req: IncomingMessage): IURL => {
   const paths = absoluteUrl(req);
 
   return {

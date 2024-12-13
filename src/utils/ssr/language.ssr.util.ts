@@ -1,47 +1,51 @@
 import { LanguageService } from '@services/language.service';
 import { StatusId } from '@constants/status';
 import { LanguageUtil } from '@utils/language.util';
-import { CookieSSRUtil } from '@utils/cookie.ssr.util';
+import { CookieSSRUtil } from '@utils/ssr/cookie.ssr.util';
 import { UrlUtil } from '@utils/url.util';
 import { IncomingMessage, ServerResponse } from 'http';
-import { UrlSSRUtil } from '@utils/url.ssr.util';
+import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
+import { IAppStore } from '@lib/store';
+import { setDefaultLangIdState, setSelectedLangCodeState, setSelectedLangIdState } from '@lib/features/appSlice';
 
 const init = async (
+  store: IAppStore,
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>
 ) => {
+  const {pageState, appState} = store.getState();
   // Get all languages
-  req.appData.languages =
+  const languages =
     (await LanguageService.getMany({ statusId: StatusId.Active })).data ?? [];
 
   // Find default language
-  const foundDefaultLanguage = req.appData.languages.findSingle(
+  const foundDefaultLanguage = languages.findSingle(
     'isDefault',
     true
   );
   if (foundDefaultLanguage) {
-    req.appData.defaultLangId = foundDefaultLanguage._id;
-    req.appData.selectedLangId = foundDefaultLanguage._id;
-    req.appData.selectedLangCode = LanguageUtil.getCode(foundDefaultLanguage);
+    store.dispatch(setDefaultLangIdState(foundDefaultLanguage._id));
+    store.dispatch(setSelectedLangIdState(foundDefaultLanguage._id));
+    store.dispatch(setSelectedLangCodeState(LanguageUtil.getCode(foundDefaultLanguage)));
 
-    if (!req.pageData.isSitemap) {
+    if (!pageState.isSitemap) {
       // Check is there a cookie lang code
-      if (req.cookies.langCode) {
+      if (appState.cookies.langCode) {
         // Check cookie lang code and default lang code are same
-        if (req.appData.selectedLangCode == req.cookies.langCode) {
+        if (appState.selectedLangCode == appState.cookies.langCode) {
           CookieSSRUtil.deleteLangId(req, res);
           UrlSSRUtil.move(
             res,
             UrlUtil.replaceLanguageCode({
-              url: req.getURL,
+              url: appState.url,
               withBase: true,
             })
           );
           return false;
         } else {
           // Find cookie lang code
-          const langKeys = req.cookies.langCode.split('-');
-          const foundCookieLanguagesWithKey = req.appData.languages.findMulti(
+          const langKeys = appState.cookies.langCode?.split('-') || ["", ""];
+          const foundCookieLanguagesWithKey = appState.languages.findMulti(
             'shortKey',
             langKeys[0]
           );
@@ -49,16 +53,16 @@ const init = async (
             foundCookieLanguagesWithKey.findSingle('locale', langKeys[1]);
           // Check lang code is correct
           if (foundCookieLanguageWithLocale) {
-            req.appData.selectedLangId = foundCookieLanguageWithLocale._id;
-            req.appData.selectedLangCode = req.cookies.langCode;
-            if (req.cookies.langId != req.appData.selectedLangId) {
+            appState.selectedLangId = foundCookieLanguageWithLocale._id;
+            appState.selectedLangCode = appState.cookies.langCode ?? "";
+            if (appState.cookies.langId != appState.selectedLangId) {
               CookieSSRUtil.setLangId(req, res);
             }
           } else {
             UrlSSRUtil.move(
               res,
               UrlUtil.replaceLanguageCode({
-                url: req.getURL,
+                url: appState.url,
                 withBase: true,
               })
             );
@@ -68,18 +72,18 @@ const init = async (
       } else {
         // Check there is a cookie lang id and check it is same with default lang id
         if (
-          req.cookies.langId &&
-          req.cookies.langId != req.appData.selectedLangId
+          appState.cookies.langId &&
+          appState.cookies.langId != appState.selectedLangId
         ) {
-          const foundCookieLanguageWithId = req.appData.languages.findSingle(
+          const foundCookieLanguageWithId = appState.languages.findSingle(
             '_id',
-            req.cookies.langId
+            appState.cookies.langId
           );
           if (foundCookieLanguageWithId) {
             UrlSSRUtil.move(
               res,
               UrlUtil.replaceLanguageCode({
-                url: req.getURL,
+                url: appState.url,
                 newLanguage: foundCookieLanguageWithId,
                 withBase: true,
               })

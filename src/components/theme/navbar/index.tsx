@@ -1,78 +1,68 @@
-import React from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
+import React, { useEffect, useState } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { NavigationService } from '@services/navigation.service';
 import { StatusId } from '@constants/status';
 import { INavigationGetResultService } from 'types/services/navigation.service';
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { UrlUtil } from '@utils/url.util';
+import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { useAppSelector } from '@lib/hooks';
+import { HelperUtil } from '@utils/helper.util';
 
-type IPageState = {
+type IComponentState = {
   isNavbarSticky: boolean;
-} & { [key: string]: any };
+  navbarStatus: { [key: string]: any }
+};
 
-type IPageProps = {
+type IComponentProps = {
   component: IComponentGetResultService<{
     navigations?: INavigationGetResultService[];
   }>;
-} & IPagePropCommon;
+};
 
-class ComponentThemeNavbar extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {
-      isNavbarSticky: false,
-    };
+function ComponentThemeNavbar({component}: IComponentProps) {
+  const [isNavbarSticky, setIsNavbarSticky] = useState<IComponentState["isNavbarSticky"]>(false);
+  const [navbarStatus, setNavbarStatus] = useState<IComponentState["navbarStatus"]>({});
+  const { appState } = useAppSelector(state => state);
+
+  useEffect(() => {
+    setEvents();
+  })
+
+  const setEvents = () => {
+    window.addEventListener('scroll', () => onScrolling());
   }
 
-  componentDidMount() {
-    this.setEvents();
-  }
-
-  setEvents() {
-    window.addEventListener('scroll', () => this.onScrolling());
-  }
-
-  onScrolling() {
+  const onScrolling = () => {
     if (window.scrollY > window.frames.innerHeight) {
-      if (!this.state.isNavbarSticky) {
-        this.setState({
-          isNavbarSticky: true,
-        });
+      if (!isNavbarSticky) {
+        setIsNavbarSticky(true);
       }
     } else {
-      if (this.state.isNavbarSticky) {
-        this.setState({
-          isNavbarSticky: false,
-        });
+      if (isNavbarSticky) {
+        setIsNavbarSticky(false);
       }
     }
   }
 
-  onShowDropdown = (navigationId: string, isShow: boolean) => {
-    this.setState({
-      [navigationId]: isShow,
-    });
+  const onShowDropdown = (navigationId: string, isShow: boolean) => {
+    setNavbarStatus({[navigationId]: isShow})
   };
 
-  DropdownItem = (props: INavigationGetResultService, index: number) => {
+  const DropdownItem = (props: INavigationGetResultService, index: number) => {
     const children =
-      this.props.component.customData?.navigations?.findMulti(
+      component.customData?.navigations?.findMulti(
         'parentId._id',
         props._id
       ) ?? [];
 
     return children.length > 0 ? (
-      this.Dropdown(props, index)
+      Dropdown(props, index)
     ) : (
       <NavDropdown.Item
         key={props._id}
         href={UrlUtil.createHref({
-          url: this.props.getURL,
+          url: appState.url,
           targetPath: props.contents?.url,
         })}
       >
@@ -81,9 +71,9 @@ class ComponentThemeNavbar extends ComponentHelperClass<
     );
   };
 
-  Dropdown = (props: INavigationGetResultService, index: number) => {
+  const Dropdown = (props: INavigationGetResultService, index: number) => {
     const children =
-      this.props.component.customData?.navigations?.findMulti(
+      component.customData?.navigations?.findMulti(
         'parentId._id',
         props._id
       ) ?? [];
@@ -91,38 +81,38 @@ class ComponentThemeNavbar extends ComponentHelperClass<
     return (
       <NavDropdown
         renderMenuOnMount={true}
-        show={this.state[props._id]}
+        show={navbarStatus[props._id]}
         key={props._id}
         title={props.contents?.title}
         drop={props.parentId ? 'end' : 'down'}
-        onMouseEnter={(event) => this.onShowDropdown(props._id, true)}
-        onMouseLeave={(event) => this.onShowDropdown(props._id, false)}
+        onMouseEnter={(event) => onShowDropdown(props._id, true)}
+        onMouseLeave={(event) => onShowDropdown(props._id, false)}
         onClick={(event) =>
-          this.onShowDropdown(props._id, !this.state[props._id])
+          onShowDropdown(props._id, !navbarStatus[props._id])
         }
       >
         {children.map((child, childIndex) =>
-          this.DropdownItem(child, childIndex)
+          DropdownItem(child, childIndex)
         )}
       </NavDropdown>
     );
   };
 
-  NavItem = (props: INavigationGetResultService, index: number) => {
+  const NavItem = (props: INavigationGetResultService, index: number) => {
     if (props.parentId) return null;
     const children =
-      this.props.component.customData?.navigations?.findMulti(
+      component.customData?.navigations?.findMulti(
         'parentId._id',
         props._id
       ) ?? [];
 
     return children.length > 0 ? (
-      this.Dropdown(props, index)
+      Dropdown(props, index)
     ) : (
       <Nav.Item key={props._id}>
         <Nav.Link
           href={UrlUtil.createHref({
-            url: this.props.getURL,
+            url: appState.url,
             targetPath: props.contents?.url,
           })}
         >
@@ -132,56 +122,58 @@ class ComponentThemeNavbar extends ComponentHelperClass<
     );
   };
 
-  render() {
-    return (
-      <div
-        className={`navbar-section ${this.state.isNavbarSticky ? 'scroll-on' : 'start-style'}`}
-        id="navbar-section"
-      >
-        <div className="container">
-          <Navbar expand="md" className="navbar-light">
-            <Navbar.Brand
-              href={UrlUtil.createHref({
-                url: this.props.getURL,
-                targetPath: '',
-              })}
+  return (
+    <div
+      className={`navbar-section ${isNavbarSticky ? 'scroll-on' : 'start-style'}`}
+      id="navbar-section"
+    >
+      <div className="container">
+        <Navbar expand="md" className="navbar-light">
+          <Navbar.Brand
+            href={UrlUtil.createHref({
+              url: appState.url,
+              targetPath: '',
+            })}
+          >
+            <h2>{appState.settings.seoContents?.title}</h2>
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="#nav">
+            <span className="navbar-toggler-icon"></span>
+          </Navbar.Toggle>
+          <Navbar.Collapse id="nav">
+            <Nav>
+              {component.customData?.navigations?.map(
+                (navigation, index) => NavItem(navigation, index)
+              )}
+            </Nav>
+            <a
+              className="btn btn-warning login-btn"
+              href="http://localhost:3001/login"
             >
-              <h2>{this.props.appData.settings.seoContents?.title}</h2>
-            </Navbar.Brand>
-            <Navbar.Toggle aria-controls="#nav">
-              <span className="navbar-toggler-icon"></span>
-            </Navbar.Toggle>
-            <Navbar.Collapse id="nav">
-              <Nav>
-                {this.props.component.customData?.navigations?.map(
-                  (navigation, index) => this.NavItem(navigation, index)
-                )}
-              </Nav>
-              <a
-                className="btn btn-warning login-btn"
-                href="http://localhost:3001/login"
-              >
-                {this.getComponentElementContents('buttonText')?.content}
-              </a>
-            </Navbar.Collapse>
-          </Navbar>
-        </div>
+              {HelperUtil.getComponentElementContents(component, 'buttonText')?.content}
+            </a>
+          </Navbar.Collapse>
+        </Navbar>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
-ComponentThemeNavbar.initComponentServerSideProps = async (req, component) => {
+const componentServerSideProps: IFuncComponentServerSideProps = async (store, req, component) => {
   component.customData = {};
+
+  const { appState } = store.getState();
 
   component.customData.navigations =
     (
       await NavigationService.getMany({
-        langId: req.appData.selectedLangId,
+        langId: appState.selectedLangId,
         statusId: StatusId.Active,
         isPrimary: true,
       })
     ).data ?? [];
 };
+
+ComponentThemeNavbar.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeNavbar;

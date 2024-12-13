@@ -1,24 +1,39 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IComponentGetResultService } from 'types/services/component.service';
+import { IPostGetOneResultService } from 'types/services/post.service';
 
-const 
+export type IPageState = {
+  isSitemap: boolean;
+  page?: IPostGetOneResultService | null;
+  publicComponents: IComponentGetResultService[];
+  privateComponents: IComponentGetResultService[];
+};
 
-const languageSlice = createSlice({
-  name: 'language',
-  initialState: {
-    resources: {},
-  },
+const initialState: IPageState = {
+  isSitemap: false,
+  page: null,
+  privateComponents: [],
+  publicComponents: []
+}
+
+const pageSlice = createSlice({
+  name: 'page',
+  initialState,
   reducers: {
-    setLanguageState: (state, action) => {
-      state.resources = action.payload.elements.reduce(
-        (a: any, v: any) => ({
-          ...a,
-          [v.key]: v.contents?.content || '',
-        }),
-        {}
-      ) || {};
+    setIsSitemapState(state, action: PayloadAction<IPageState["isSitemap"]>) {
+      state.isSitemap = action.payload;
+    },
+    setPageState(state, action: PayloadAction<IPageState["page"]>) {
+      state.page = action.payload;
+    },
+    setPrivateComponentsState(state, action: PayloadAction<IPageState["privateComponents"]>) {
+      state.privateComponents = action.payload;
+    },
+    setPublicComponentsState(state, action: PayloadAction<IPageState["publicComponents"]>) {
+      state.publicComponents = action.payload;
     },
   },
 });
 
-export const { setLanguageState } = languageSlice.actions;
-export const languageReducer = languageSlice.reducer;
+export const { setIsSitemapState, setPageState, setPrivateComponentsState, setPublicComponentsState } = pageSlice.actions;
+export const pageReducer = pageSlice.reducer;

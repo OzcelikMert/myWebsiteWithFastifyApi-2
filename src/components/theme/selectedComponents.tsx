@@ -1,35 +1,25 @@
 import React, { Component } from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { IComponentGetResultService } from 'types/services/component.service';
+import { useAppSelector } from '@lib/hooks';
 
-type IPageState = {};
+type IComponentProps = {};
 
-type IPageProps = {} & IPagePropCommon;
+export default function ComponentThemeSelectedComponents({}: IComponentProps) {
+  const { pageState } = useAppSelector(state => state);
 
-export default class ComponentThemeSelectedComponents extends Component<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-  }
-
-  getElement = (component: IComponentGetResultService) => {
+  const getElement = (component: IComponentGetResultService) => {
     let element = <div></div>;
 
     try {
       const ComponentClass = require(`components/theme/${component.key}`)
-        .default as typeof ComponentHelperClass;
-      element = <ComponentClass component={component} {...this.props} />;
+        .default as any;
+      element = <ComponentClass component={component} />;
     } catch (e) {}
 
     return element;
   };
 
-  render() {
-    return this.props.pageData?.privateComponents?.map((component) =>
-      this.getElement(component)
-    );
-  }
+  return pageState.privateComponents?.map((component) =>
+    getElement(component)
+  );
 }

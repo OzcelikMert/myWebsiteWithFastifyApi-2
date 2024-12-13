@@ -5,7 +5,7 @@ import { SitemapService } from '@services/sitemap.service';
 import { ISitemapFileIndex } from 'types/pages/sitemap.xml';
 import { PostUtil } from '@utils/post.util';
 import { SitemapUtil } from '@utils/sitemap.util';
-import { PageSSRUtil } from '@utils/page.ssr.util';
+import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 
 export default function PageSitemapXML() {
   return null;

@@ -1,29 +1,24 @@
-import React, { Component } from 'react';
-import { IPagePropCommon } from 'types/pageProps';
+import React from 'react';
 import ComponentThemeError404 from '@components/theme/error404';
 import { ComponentKey } from '@constants/componentKeys';
+import { useAppSelector } from '@lib/hooks';
 
-type PageState = {};
-
-type PageProps = {
+type IComponentProps = {
   children: React.ReactNode;
-} & IPagePropCommon;
+};
 
-export default class ProviderNoFound extends Component<PageProps, PageState> {
-  constructor(props: PageProps) {
-    super(props);
+export default function ProviderNoFound({children}: IComponentProps) {
+  const {pageState} = useAppSelector(state => state);
+
+  if (!pageState.page) {
+    const component404 = pageState.publicComponents.findSingle(
+      'key',
+      ComponentKey.Error404
+    );
+    return component404 ? (
+      <ComponentThemeError404 component={component404} />
+    ) : null;
   }
 
-  render() {
-    if (!this.props.pageData.page) {
-      const component404 = this.props.pageData.publicComponents.findSingle(
-        'key',
-        ComponentKey.Error404
-      );
-      return component404 ? (
-        <ComponentThemeError404 component={component404} {...this.props} />
-      ) : null;
-    }
-    return this.props.children;
-  }
+  return children;
 }

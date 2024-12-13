@@ -8,6 +8,6 @@ export const LanguageKey = [
   'blogFoundMessage',
   'showMore',
   'blogsYouMightLike',
-  'subscribeSuccessMessage',
+  'subscribeSuccessMessageWithVariable',
   'weWillNeverShareYourEmail',
 ] as const;

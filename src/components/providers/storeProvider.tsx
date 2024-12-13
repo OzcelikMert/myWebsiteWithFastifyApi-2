@@ -1,29 +1,29 @@
 import { useRef } from 'react';
 import { Provider } from 'react-redux';
-import { makeStore, AppStore } from '@lib/store';
-import { IPageData, IPagePropCommon } from 'types/pageProps';
+import { makeStore, IAppStore } from '@lib/store';
 import { ComponentKey } from '@constants/componentKeys';
-import { setLanguageState } from '@lib/features/languageSlice';
+import { setTranslationState } from '@lib/features/translationSlice';
+import { AppProps } from 'next/app';
+import { setRouterState } from '@lib/features/appSlice';
 
-export default function StoreProvider({
-  pageProps,
-  children,
-}: {
-  pageProps: IPagePropCommon;
+type IComponentProps = {
   children: React.ReactNode;
-}) {
-  const storeRef = useRef<AppStore>();
+  router: AppProps['router'];
+};
+
+export default function StoreProvider({ children, router }: IComponentProps) {
+  const storeRef = useRef<IAppStore>();
   if (!storeRef.current) {
     storeRef.current = makeStore();
 
-    const componentStaticContents =
-      pageProps.pageData.publicComponents.findSingle(
-        'key',
-        ComponentKey.StaticContents
-      );
+    storeRef.current.dispatch(setRouterState(router));
+
+    const componentStaticContents = storeRef.current
+      .getState()
+      .pageState.publicComponents.findSingle('key', ComponentKey.StaticContents);
 
     if (componentStaticContents) {
-      storeRef.current.dispatch(setLanguageState(componentStaticContents));
+      storeRef.current.dispatch(setTranslationState(componentStaticContents));
     }
   }
 

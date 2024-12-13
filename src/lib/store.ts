@@ -1,17 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
-import { languageReducer } from './features/languageSlice';
+import { translationReducer } from './features/translationSlice';
+import { appReducer } from './features/appSlice';
+import { pageReducer } from './features/pageSlice';
 
 
 export const makeStore  = () => {
   return configureStore({
     reducer: {
-        language: languageReducer
+        translationState: translationReducer,
+        appState: appReducer,
+        pageState: pageReducer
     },
   })
 };
 
 export const wrapper = createWrapper(makeStore);
-export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore['getState']>;
-export type AppDispatch = AppStore['dispatch'];
+export type IAppStore = ReturnType<typeof makeStore>;
+export type IRootState = ReturnType<IAppStore['getState']>;
+export type IAppDispatch = IAppStore['dispatch'];

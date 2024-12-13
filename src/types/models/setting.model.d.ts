@@ -8,8 +8,8 @@ export interface ISettingModel {
   script?: string;
   seoContents: ISettingSeoContentModel;
   contact?: ISettingContactModel;
-  contactForms: ISettingContactFormModel[];
-  socialMedia: ISettingSocialMediaModel[];
+  contactForms?: ISettingContactFormModel[];
+  socialMedia?: ISettingSocialMediaModel[];
   eCommerce?: ISettingECommerceModel;
 }
 

@@ -9,19 +9,20 @@ import '@library/variable/number';
 import '@library/variable/date';
 import '@library/variable/math';
 
-import ComponentApp from '@components/app';
-import { PageSSRUtil } from '@utils/page.ssr.util';
+import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { SettingService } from '@services/setting.service';
-import { LanguageSSRUtil } from '@utils/language.ssr.util';
-import { UrlSSRUtil } from '@utils/url.ssr.util';
+import { LanguageSSRUtil } from '@utils/ssr/language.ssr.util';
+import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
 import { wrapper } from '@lib/store';
 import StoreProvider from '@components/providers/storeProvider';
+import { setSettingsState, setURLState } from '@lib/features/appSlice';
+import { setIsSitemapState } from '@lib/features/pageSlice';
 
 function App(props: AppProps) {
   const { pageProps, Component, router } = props;
   return (
-    <StoreProvider pageProps={pageProps}>
-      <ComponentApp {...pageProps} Component={Component} router={router} />
+    <StoreProvider {...pageProps} router={router}>
+      <Component />
     </StoreProvider>
   );
 }
@@ -32,20 +33,23 @@ App.getInitialProps = wrapper.getInitialAppProps(
       const req = props.ctx.req;
       const res = props.ctx.res;
 
-      req.pageData = {};
-      req.appData = {};
-      req.getURL = UrlSSRUtil.get(req);
-      console.log(req.getURL);
+      const {appState, pageState} = store.getState();
 
-      req.pageData.isSitemap =
-        req.getURL.asPath.includes('/sitemap.xml') ||
-        req.getURL.asPath.includes('/sitemaps/');
+      const url = UrlSSRUtil.get(req);
+      store.dispatch(setURLState(url));
+      console.log(url);
 
-      if (!req.pageData.isSitemap) {
-        await PageSSRUtil.initPublicComponents(req);
+      const isSitemap =
+        url.asPath.includes('/sitemap.xml') ||
+        url.asPath.includes('/sitemaps/');
+      
+      store.dispatch(setIsSitemapState(isSitemap));
+
+      if (!isSitemap) {
+        await PageSSRUtil.initPublicComponents(store, req);
       }
 
-      const isLangInit = await LanguageSSRUtil.init(req, res);
+      const isLangInit = await LanguageSSRUtil.init(store, req, res);
       if (!isLangInit) {
         return {
           pageProps: {}
@@ -53,16 +57,12 @@ App.getInitialProps = wrapper.getInitialAppProps(
       }
 
       const serviceResultSettings = await SettingService.get({
-        langId: req.appData.selectedLangId,
+        langId: appState.selectedLangId,
       });
 
       if (serviceResultSettings.status && serviceResultSettings.data) {
-        req.appData.settings = serviceResultSettings.data;
+        store.dispatch(setSettingsState(serviceResultSettings.data));
       }
-
-      return {
-        pageProps: PageSSRUtil.getProps(req),
-      };
     }
 
     return {

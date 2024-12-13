@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { GetServerSidePropsContext } from 'next';
-import { PageSSRUtil } from '@utils/page.ssr.util';
+import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { IPagePropCommon } from 'types/pageProps';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentAppLayout from '@components/app/layout';

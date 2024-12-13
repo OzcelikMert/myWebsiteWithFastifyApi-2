@@ -1,6 +1,4 @@
 import React from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { SocialMediaKey } from '@constants/socialMediaKeys';
 import { NavigationService } from '@services/navigation.service';
@@ -13,43 +11,39 @@ import { IPostGetManyResultService } from 'types/services/post.service';
 import { UrlUtil } from '@utils/url.util';
 import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
+import { useAppSelector } from '@lib/hooks';
+import { HelperUtil } from '@utils/helper.util';
+import { IFuncComponentServerSideProps } from 'types/components/ssr';
 
-type IPageState = {};
-
-type IPageProps = {
+type IComponentProps = {
   component: IComponentGetResultService<{
     navigations?: INavigationGetResultService[];
     hotBlogs?: IPostGetManyResultService[];
     hitBlogs?: IPostGetManyResultService[];
   }>;
-} & IPagePropCommon;
+};
 
-class ComponentThemeFooter extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-  }
+function ComponentThemeFooter({component}: IComponentProps) {
+  const { appState } = useAppSelector(state => state);
 
-  Languages = () => {
+  const Languages = () => {
     return (
       <div className="text-start mt-3">
         <small className="fw-bold">
-          {this.getComponentElementContents('languagesTitle')?.content}:
+          {HelperUtil.getComponentElementContents(component, 'languagesTitle')?.content}:
         </small>
         <span>
-          {this.props.appData.languages.map((language, index) => (
+          {appState.languages.map((language, index) => (
             <a
               href={
-                language._id == this.props.appData.selectedLangId
+                language._id == appState.selectedLangId
                   ? '#'
                   : UrlUtil.replaceLanguageCode({
-                      url: this.props.getURL,
+                      url: appState.url,
                       newLanguage: language,
                     })
               }
-              className={`ms-2 ${language._id == this.props.appData.selectedLangId ? 'text-muted' : ''}`}
+              className={`ms-2 ${language._id == appState.selectedLangId ? 'text-muted' : ''}`}
             >
               <span>
                 <Image
@@ -68,52 +62,52 @@ class ComponentThemeFooter extends ComponentHelperClass<
     );
   };
 
-  Copyright = () => {
+  const Copyright = () => {
     return (
       <div className="text-center mt-3">
         <small>
-          © {this.props.appData.settings.seoContents?.title}{' '}
+          © {appState.settings.seoContents?.title}{' '}
           {new Date().getStringWithMask('yyyy')}. All rights reserved.
         </small>
       </div>
     );
   };
 
-  Main = () => {
+  const Main = () => {
     return (
       <div className="row d-flex flex-wrap border-top pt-2 pt-md-5">
         <div className="col-12 col-lg-4 mt-3 mt-md-0">
           <h1 className="fw-bold">
-            {this.props.appData.settings.seoContents?.title}
+            {appState.settings.seoContents?.title}
           </h1>
-          <p>{this.getComponentElementContents('describe')?.content}</p>
+          <p>{HelperUtil.getComponentElementContents(component, 'describe')?.content}</p>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{this.getComponentElementContents('socialTitle')?.content}</h4>
+          <h4>{HelperUtil.getComponentElementContents(component, 'socialTitle')?.content}</h4>
           <ul>
             <li>
-              <a href={this.getSocialMediaURL(SocialMediaKey.Twitter)}>
+              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Twitter)}>
                 <span>
                   <i className="mdi mdi-twitter"></i> Twitter
                 </span>
               </a>
             </li>
             <li>
-              <a href={this.getSocialMediaURL(SocialMediaKey.Instagram)}>
+              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Instagram)}>
                 <span>
                   <i className="mdi mdi-instagram"></i> Instagram
                 </span>
               </a>
             </li>
             <li>
-              <a href={this.getSocialMediaURL(SocialMediaKey.Facebook)}>
+              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Facebook)}>
                 <span>
                   <i className="mdi mdi-facebook"></i> Facebook
                 </span>
               </a>
             </li>
             <li>
-              <a href={this.getSocialMediaURL(SocialMediaKey.Youtube)}>
+              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Youtube)}>
                 <span>
                   <i className="mdi mdi-youtube"></i> Youtube
                 </span>
@@ -122,9 +116,9 @@ class ComponentThemeFooter extends ComponentHelperClass<
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{this.getComponentElementContents('pagesTitle')?.content}</h4>
+          <h4>{HelperUtil.getComponentElementContents(component, 'pagesTitle')?.content}</h4>
           <ul>
-            {this.props.component.customData?.navigations?.map((navigation) => (
+            {component.customData?.navigations?.map((navigation) => (
               <li>
                 <a href={navigation.contents?.url}>
                   <span>{navigation.contents?.title}</span>
@@ -134,9 +128,9 @@ class ComponentThemeFooter extends ComponentHelperClass<
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{this.getComponentElementContents('hotBlogsTitle')?.content}</h4>
+          <h4>{HelperUtil.getComponentElementContents(component, 'hotBlogsTitle')?.content}</h4>
           <ul>
-            {this.props.component.customData?.hotBlogs?.map((blog) => (
+            {component.customData?.hotBlogs?.map((blog) => (
               <li>
                 <a href={blog.contents?.url}>
                   <span>{blog.contents?.title}</span>
@@ -146,9 +140,9 @@ class ComponentThemeFooter extends ComponentHelperClass<
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{this.getComponentElementContents('hitBlogsTitle')?.content}</h4>
+          <h4>{HelperUtil.getComponentElementContents(component, 'hitBlogsTitle')?.content}</h4>
           <ul>
-            {this.props.component.customData?.hitBlogs?.map((blog) => (
+            {component.customData?.hitBlogs?.map((blog) => (
               <li>
                 <a href={blog.contents?.url}>
                   <span>{blog.contents?.title}</span>
@@ -161,26 +155,26 @@ class ComponentThemeFooter extends ComponentHelperClass<
     );
   };
 
-  render() {
-    return (
-      <footer className="footer-section">
-        <div className="container">
-          <this.Main />
-          <this.Languages />
-          <this.Copyright />
-        </div>
-      </footer>
-    );
-  }
+  return (
+    <footer className="footer-section">
+      <div className="container">
+        <Main />
+        <Languages />
+        <Copyright />
+      </div>
+    </footer>
+  );
 }
 
-ComponentThemeFooter.initComponentServerSideProps = async (req, component) => {
+const componentServerSideProps: IFuncComponentServerSideProps = async (store, req, component) => {
   component.customData = {};
+
+  const { appState } = store.getState();
 
   component.customData.navigations =
     (
       await NavigationService.getMany({
-        langId: req.appData.selectedLangId,
+        langId: appState.selectedLangId,
         statusId: StatusId.Active,
         isSecondary: true,
       })
@@ -189,7 +183,7 @@ ComponentThemeFooter.initComponentServerSideProps = async (req, component) => {
   component.customData.hotBlogs =
     (
       await PostService.getMany({
-        langId: req.appData.selectedLangId,
+        langId: appState.selectedLangId,
         statusId: StatusId.Active,
         typeId: [PostTypeId.Blog],
         sortTypeId: PostSortTypeId.Newest,
@@ -200,7 +194,7 @@ ComponentThemeFooter.initComponentServerSideProps = async (req, component) => {
   component.customData.hitBlogs =
     (
       await PostService.getMany({
-        langId: req.appData.selectedLangId,
+        langId: appState.selectedLangId,
         statusId: StatusId.Active,
         typeId: [PostTypeId.Blog],
         sortTypeId: PostSortTypeId.MostPopular,
@@ -208,5 +202,7 @@ ComponentThemeFooter.initComponentServerSideProps = async (req, component) => {
       })
     ).data ?? [];
 };
+
+ComponentThemeFooter.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeFooter;

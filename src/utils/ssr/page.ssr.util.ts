@@ -5,13 +5,15 @@ import { PostService } from '@services/post.service';
 import { IPageGetParamUtil } from 'types/utils/page.util';
 import { ComponentService } from '@services/component.service';
 import { ComponentTypeId } from '@constants/componentTypes';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { AppStore } from '@lib/store';
+import { IAppStore } from '@lib/store';
+import { setPageState, setPrivateComponentsState, setPublicComponentsState } from '@lib/features/pageSlice';
 
-const init = async (store: AppStore, params: IPageGetParamUtil) => {
+const init = async (store: IAppStore, params: IPageGetParamUtil) => {
+  const { appState } = store.getState();
+
   const serviceResultPage = await PostService.getWithURL({
-    langId: params.req.appData.selectedLangId,
+    langId: appState.selectedLangId,
     typeId: PostTypeId.Page,
     statusId: StatusId.Active,
     url: params.url ?? '',
@@ -19,13 +21,13 @@ const init = async (store: AppStore, params: IPageGetParamUtil) => {
   });
 
   if (serviceResultPage.status && serviceResultPage.data) {
-    params.req.pageData.page = serviceResultPage.data;
+    store.dispatch(setPageState(serviceResultPage.data))
 
     if (params.increaseView) {
       await PostService.updateViewWithId({
         _id: serviceResultPage.data._id,
         typeId: serviceResultPage.data.typeId,
-        langId: params.req.appData.selectedLangId ?? '',
+        langId: appState.selectedLangId ?? '',
         url: params.url,
       });
     }
@@ -34,72 +36,63 @@ const init = async (store: AppStore, params: IPageGetParamUtil) => {
       serviceResultPage.data.components &&
       serviceResultPage.data.components.length > 0
     ) {
-      await initPrivateComponents(params.req);
+      await initPrivateComponents(store, params.req);
     }
   }
 };
 
-const initPrivateComponents = async (store: AppStore, req: IncomingMessage) => {
-  req.pageData.privateComponents = [];
+const initPrivateComponents = async (store: IAppStore, req: IncomingMessage) => {
+  const { appState, pageState } = store.getState();
 
-  if (req.pageData.page && req.pageData.page.components) {
+  if (pageState.page && pageState.page.components) {
     const serviceResult = await ComponentService.getMany({
-      langId: req.appData.selectedLangId,
+      langId: appState.selectedLangId,
       typeId: ComponentTypeId.Private,
       withContent: true,
       withCustomSort: true,
-      _id: req.pageData.page.components,
+      _id: pageState.page.components,
     });
 
     if (serviceResult.status && serviceResult.data) {
-      req.pageData.privateComponents = serviceResult.data;
-      await initComponentSSRProps(req, req.pageData.privateComponents);
+      await initComponentSSRProps(store, req, serviceResult.data);
+      store.dispatch(setPrivateComponentsState(serviceResult.data))
     }
   }
 };
 
 
-const initPublicComponents = async (store: AppStore, req: IncomingMessage) => {
-  req.pageData.publicComponents = [];
+const initPublicComponents = async (store: IAppStore, req: IncomingMessage) => {
+  const { appState } = store.getState();
 
   const serviceResult = await ComponentService.getMany({
-    langId: req.appData.selectedLangId,
+    langId: appState.selectedLangId,
     typeId: ComponentTypeId.Public,
     withContent: true,
   });
 
   if (serviceResult.status && serviceResult.data) {
-    req.pageData.publicComponents = serviceResult.data;
-    await initComponentSSRProps(req, req.pageData.publicComponents);
+    await initComponentSSRProps(store, req, serviceResult.data);
+    store.dispatch(setPublicComponentsState(serviceResult.data))
   }
 };
 
 const initComponentSSRProps = async (
+  store: IAppStore,
   req: IncomingMessage,
   components: IComponentGetResultService[]
 ) => {
   for (const component of components ?? []) {
     try {
       const componentClass = (await import(`components/theme/${component.key}`))
-        .default as typeof ComponentHelperClass;
-      if (componentClass.initComponentServerSideProps) {
-        await componentClass.initComponentServerSideProps(req, component);
+        .default as any;
+      if (componentClass.componentServerSideProps) {
+        await componentClass.componentServerSideProps(store, req, component);
       }
     } catch (e) {}
   }
 };
 
-const getProps = (req: IncomingMessage) => {
-  return {
-    appData: req.appData,
-    pageData: req.pageData ?? {},
-    cookies: req.cookies ?? {},
-    getURL: req.getURL,
-  };
-};
-
 export const PageSSRUtil = {
   init: init,
-  getProps: getProps,
   initPublicComponents: initPublicComponents,
 };
