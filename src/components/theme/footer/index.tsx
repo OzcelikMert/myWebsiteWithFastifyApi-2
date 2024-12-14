@@ -23,14 +23,21 @@ type IComponentProps = {
   }>;
 };
 
-function ComponentThemeFooter({component}: IComponentProps) {
-  const appState = useAppSelector(state => state.appState);
+function ComponentThemeFooter({ component }: IComponentProps) {
+  const appState = useAppSelector((state) => state.appState);
+
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
+
+  let socialMediaURL = HelperUtil.getSocialMediaURL(
+    appState.settings.socialMedia
+  );
 
   const Languages = () => {
     return (
       <div className="text-start mt-3">
         <small className="fw-bold">
-          {HelperUtil.getComponentElementContents(component, 'languagesTitle')?.content}:
+          {componentElementContents('languagesTitle')?.content}:
         </small>
         <span>
           {appState.languages.map((language, index) => (
@@ -77,37 +84,35 @@ function ComponentThemeFooter({component}: IComponentProps) {
     return (
       <div className="row d-flex flex-wrap border-top pt-2 pt-md-5">
         <div className="col-12 col-lg-4 mt-3 mt-md-0">
-          <h1 className="fw-bold">
-            {appState.settings.seoContents?.title}
-          </h1>
-          <p>{HelperUtil.getComponentElementContents(component, 'describe')?.content}</p>
+          <h1 className="fw-bold">{appState.settings.seoContents?.title}</h1>
+          <p>{componentElementContents('describe')?.content}</p>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{HelperUtil.getComponentElementContents(component, 'socialTitle')?.content}</h4>
+          <h4>{componentElementContents('socialTitle')?.content}</h4>
           <ul>
             <li>
-              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Twitter)}>
+              <a href={socialMediaURL(SocialMediaKey.Twitter)}>
                 <span>
                   <i className="mdi mdi-twitter"></i> Twitter
                 </span>
               </a>
             </li>
             <li>
-              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Instagram)}>
+              <a href={socialMediaURL(SocialMediaKey.Instagram)}>
                 <span>
                   <i className="mdi mdi-instagram"></i> Instagram
                 </span>
               </a>
             </li>
             <li>
-              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Facebook)}>
+              <a href={socialMediaURL(SocialMediaKey.Facebook)}>
                 <span>
                   <i className="mdi mdi-facebook"></i> Facebook
                 </span>
               </a>
             </li>
             <li>
-              <a href={HelperUtil.getSocialMediaURL(appState.settings.socialMedia, SocialMediaKey.Youtube)}>
+              <a href={socialMediaURL(SocialMediaKey.Youtube)}>
                 <span>
                   <i className="mdi mdi-youtube"></i> Youtube
                 </span>
@@ -116,7 +121,7 @@ function ComponentThemeFooter({component}: IComponentProps) {
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{HelperUtil.getComponentElementContents(component, 'pagesTitle')?.content}</h4>
+          <h4>{componentElementContents('pagesTitle')?.content}</h4>
           <ul>
             {component.customData?.navigations?.map((navigation) => (
               <li>
@@ -128,7 +133,7 @@ function ComponentThemeFooter({component}: IComponentProps) {
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{HelperUtil.getComponentElementContents(component, 'hotBlogsTitle')?.content}</h4>
+          <h4>{componentElementContents('hotBlogsTitle')?.content}</h4>
           <ul>
             {component.customData?.hotBlogs?.map((blog) => (
               <li>
@@ -140,7 +145,7 @@ function ComponentThemeFooter({component}: IComponentProps) {
           </ul>
         </div>
         <div className="col-6 col-lg-2 mt-3 mt-md-0">
-          <h4>{HelperUtil.getComponentElementContents(component, 'hitBlogsTitle')?.content}</h4>
+          <h4>{componentElementContents('hitBlogsTitle')?.content}</h4>
           <ul>
             {component.customData?.hitBlogs?.map((blog) => (
               <li>
@@ -166,7 +171,11 @@ function ComponentThemeFooter({component}: IComponentProps) {
   );
 }
 
-const componentServerSideProps: IFuncComponentServerSideProps = async (store, req, component) => {
+const componentServerSideProps: IFuncComponentServerSideProps = async (
+  store,
+  req,
+  component
+) => {
   component.customData = {};
 
   const { appState } = store.getState();

@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { useAppSelector } from '@lib/hooks';
 
 type IComponentProps = {};
 
 export default function ComponentThemeSelectedComponents({}: IComponentProps) {
-  const pageState = useAppSelector(state => state.pageState);
+  const privateComponents = useAppSelector(state => state.pageState.privateComponents);
 
   const getElement = (component: IComponentGetResultService) => {
     let element = <div></div>;
@@ -19,7 +19,7 @@ export default function ComponentThemeSelectedComponents({}: IComponentProps) {
     return element;
   };
 
-  return pageState.privateComponents?.map((component) =>
+  return privateComponents?.map((component) =>
     getElement(component)
   );
 }

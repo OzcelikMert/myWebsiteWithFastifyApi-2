@@ -1,38 +1,27 @@
 import React from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { IPostGetManyResultService } from 'types/services/post.service';
 import ComponentBlog from '@components/elements/blog';
-import { IncomingMessage } from 'http';
 import { PostService } from '@services/post.service';
 import { PostTypeId } from '@constants/postTypes';
 import { StatusId } from '@constants/status';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { IComponentGetResultService } from 'types/services/component.service';
+import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { HelperUtil } from '@utils/helper.util';
 
-type IPageState = {
-  hotBlogs: IPostGetManyResultService[];
-};
-
-type IPageProps = {
+type IComponentProps = {
   component: IComponentGetResultService<{
     hotBlogs?: IPostGetManyResultService[];
   }>;
-} & IPagePropCommon;
+};
 
-class ComponentThemeHotBlogs extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {
-      hotBlogs: this.props.component.customData?.hotBlogs ?? [],
-    };
-  }
+function ComponentThemeHotBlogs({ component }: IComponentProps) {
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
 
-  HotBlog = () => {
-    const item = this.state.hotBlogs[0];
+
+  const HotBlog = () => {
+    const item = component.customData!.hotBlogs![0];
     return (
       <section className="recent-blog-section">
         <div className="container">
@@ -42,7 +31,7 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
             animatePreScroll={false}
           >
             <h2 className="section-header">
-              {this.getComponentElementContents('hotTitle')?.content}
+              {componentElementContents('hotTitle')?.content}
             </h2>
           </AnimationOnScroll>
           <AnimationOnScroll
@@ -52,7 +41,7 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
             animatePreScroll={false}
           >
             <p className="section-content">
-              {this.getComponentElementContents('hotDescribe')?.content}
+              {componentElementContents('hotDescribe')?.content}
             </p>
           </AnimationOnScroll>
           <div className="d-flex blogs">
@@ -65,7 +54,6 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
                 animatePreScroll={false}
               >
                 <ComponentBlog
-                  {...this.props}
                   item={item}
                   index={0}
                   imageWidth={1000}
@@ -79,8 +67,10 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
     );
   };
 
-  HotBlogs = () => {
-    const items = this.state.hotBlogs.filter((value, index) => index != 0);
+  const HotBlogs = () => {
+    const items = component.customData?.hotBlogs?.filter(
+      (value, index) => index != 0
+    );
     return (
       <section className="featured-blogs-section">
         <div className="container">
@@ -90,12 +80,12 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
             animatePreScroll={false}
           >
             <h2 className="section-header">
-              {this.getComponentElementContents('hotsTitle')?.content}
+              {componentElementContents('hotsTitle')?.content}
             </h2>
           </AnimationOnScroll>
           <div className="blogs">
             <div className="row">
-              {items.map((item, index) => (
+              {items?.map((item, index) => (
                 <AnimationOnScroll
                   animateIn="animate__fadeInRight"
                   delay={(index + 1) * 100}
@@ -104,7 +94,6 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
                   animatePreScroll={false}
                 >
                   <ComponentBlog
-                    {...this.props}
                     item={item}
                     index={index}
                     hideAuthorImage={true}
@@ -120,37 +109,47 @@ class ComponentThemeHotBlogs extends ComponentHelperClass<
     );
   };
 
-  render() {
-    return this.state.hotBlogs.length < 2 ? null : (
-      <section className="hot-blogs-section" id="hot-blogs">
-        <div className="container">
-          <div className="row d-flex">
-            <div className="col-lg-8">
-              <this.HotBlog />
-            </div>
-            <div className="col-lg-4 ps-lg-5">
-              <this.HotBlogs />
-            </div>
+  let hotBlogsLength = (component.customData?.hotBlogs?.length ?? 0);
+
+  return hotBlogsLength > 0 ? (
+    <section className="hot-blogs-section" id="hot-blogs">
+      <div className="container">
+        <div className="row d-flex">
+          <div className="col-lg-8">
+            <HotBlog />
+          </div>
+          <div className="col-lg-4 ps-lg-5">
+            {
+              hotBlogsLength > 1
+                ? <HotBlogs />
+                : null
+            }
           </div>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  ) : null;
 }
 
-ComponentThemeHotBlogs.initComponentServerSideProps = async (
-  req: IncomingMessage,
+const componentServerSideProps: IFuncComponentServerSideProps = async (
+  store,
+  req,
   component
 ) => {
   component.customData = {};
+
+  const { appState } = store.getState();
+
   component.customData.hotBlogs = (
     await PostService.getMany({
-      langId: req.appData.selectedLangId,
+      langId: appState.selectedLangId,
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: 4,
     })
   ).data;
 };
+
+ComponentThemeHotBlogs.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeHotBlogs;

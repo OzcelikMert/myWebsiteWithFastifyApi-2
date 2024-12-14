@@ -1,11 +1,13 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { setCookie } from 'cookies-next';
+import { IAppStore } from '@lib/store';
 
 const setLangId = (
+  store: IAppStore,
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>
 ) => {
-  setCookie('langId', req.appData.selectedLangId, {
+  setCookie('langId', store.getState().appState.selectedLangId, {
     req,
     res,
     maxAge: 1000 * 60 * 60 * 24 * 365,

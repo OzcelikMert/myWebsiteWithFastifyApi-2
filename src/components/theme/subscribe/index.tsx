@@ -20,8 +20,12 @@ type IComponentProps = {
 export default function ComponentThemeSubscribe({
   component,
 }: IComponentProps) {
-  const [isSubscribed, setIsSubscribed] = useState<IComponentState["isSubscribed"]>(false);
-  const [email, setEmail] = useState<IComponentState["email"]>('');
+  const [isSubscribed, setIsSubscribed] =
+    useState<IComponentState['isSubscribed']>(false);
+  const [email, setEmail] = useState<IComponentState['email']>('');
+
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
 
   const onClickSubscribe = async () => {
     const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -41,8 +45,7 @@ export default function ComponentThemeSubscribe({
     return (
       <div className="subscribe-success mt-3">
         <h5 className="animate__animated animate__fadeInUp">
-          {HelperUtil.getComponentElementContents(
-            component,
+          {componentElementContents(
             'subscribeSuccessMessageWithVariable'
           )?.content?.replace('{{subscriberEmail}}', email)}
         </h5>
@@ -69,20 +72,12 @@ export default function ComponentThemeSubscribe({
               onChange={(event) => setEmail(event.target.value)}
             />
             <div className="form-text text-light">
-              {
-                HelperUtil.getComponentElementContents(
-                  component,
-                  'weWillNeverShareYourEmail'
-                )?.content
-              }
+              {componentElementContents('weWillNeverShareYourEmail')?.content}
             </div>
           </div>
           <div className="col-md-8 mt-2">
             <ComponentLoadingButton
-              text={
-                HelperUtil.getComponentElementContents(component, 'buttonText')
-                  ?.content
-              }
+              text={componentElementContents('buttonText')?.content}
               className="btn btn-warning"
               onClick={() => onClickSubscribe()}
             />
@@ -98,7 +93,7 @@ export default function ComponentThemeSubscribe({
         <div
           className="content"
           style={{
-            backgroundImage: `url(${ImageSourceUtil.getUploadedImageSrc(HelperUtil.getComponentElementContents(component, 'bgImage')?.content)})`,
+            backgroundImage: `url(${ImageSourceUtil.getUploadedImageSrc(componentElementContents('bgImage')?.content)})`,
           }}
         >
           <div className="subscribe-mask"></div>
@@ -118,16 +113,10 @@ export default function ComponentThemeSubscribe({
                           <Image
                             className="img-fluid"
                             src={ImageSourceUtil.getUploadedImageSrc(
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'image1'
-                              )?.content
+                              componentElementContents('image1')?.content
                             )}
                             alt={
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'title'
-                              )?.content ?? ''
+                              componentElementContents('title')?.content ?? ''
                             }
                             width={250}
                             height={250}
@@ -143,16 +132,10 @@ export default function ComponentThemeSubscribe({
                           <Image
                             className="img-fluid"
                             src={ImageSourceUtil.getUploadedImageSrc(
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'image2'
-                              )?.content
+                              componentElementContents('image2')?.content
                             )}
                             alt={
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'title'
-                              )?.content ?? ''
+                              componentElementContents('title')?.content ?? ''
                             }
                             width={250}
                             height={250}
@@ -172,16 +155,10 @@ export default function ComponentThemeSubscribe({
                           <Image
                             className="img-fluid"
                             src={ImageSourceUtil.getUploadedImageSrc(
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'image3'
-                              )?.content
+                              componentElementContents('image3')?.content
                             )}
                             alt={
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'title'
-                              )?.content ?? ''
+                              componentElementContents('title')?.content ?? ''
                             }
                             width={250}
                             height={250}
@@ -197,16 +174,10 @@ export default function ComponentThemeSubscribe({
                           <Image
                             className="img-fluid"
                             src={ImageSourceUtil.getUploadedImageSrc(
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'image4'
-                              )?.content
+                              componentElementContents('image4')?.content
                             )}
                             alt={
-                              HelperUtil.getComponentElementContents(
-                                component,
-                                'title'
-                              )?.content ?? ''
+                              componentElementContents('title')?.content ?? ''
                             }
                             width={250}
                             height={250}
@@ -223,12 +194,7 @@ export default function ComponentThemeSubscribe({
                     animatePreScroll={false}
                   >
                     <h1 className="card-title text-light">
-                      {
-                        HelperUtil.getComponentElementContents(
-                          component,
-                          'title'
-                        )?.content
-                      }
+                      {componentElementContents('title')?.content}
                     </h1>
                   </AnimationOnScroll>
                   <AnimationOnScroll
@@ -238,12 +204,7 @@ export default function ComponentThemeSubscribe({
                     animatePreScroll={false}
                   >
                     <p className="card-text text-light pe-md-5">
-                      {
-                        HelperUtil.getComponentElementContents(
-                          component,
-                          'describe'
-                        )?.content
-                      }
+                      {componentElementContents('describe')?.content}
                     </p>
                   </AnimationOnScroll>
                   {isSubscribed ? <SubscribeSuccessMessage /> : <Subscribe />}

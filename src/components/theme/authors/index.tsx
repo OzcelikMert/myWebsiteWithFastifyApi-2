@@ -1,6 +1,4 @@
 import React from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
 import { StatusId } from '@constants/status';
 import { UserService } from '@services/user.service';
 import { PermissionId } from '@constants/permissions';
@@ -8,23 +6,18 @@ import { IUserGetResultService } from 'types/services/user.service';
 import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
 import { IComponentGetResultService } from 'types/services/component.service';
+import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { HelperUtil } from '@utils/helper.util';
 
-type IPageState = {};
-
-type IPageProps = {
+type IComponentProps = {
   component: IComponentGetResultService<{ authors?: IUserGetResultService[] }>;
-} & IPagePropCommon;
+};
 
-class ComponentThemeAuthors extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {};
-  }
+function ComponentThemeAuthors({ component }: IComponentProps) {
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
 
-  Author = (item: IUserGetResultService, index: number) => {
+  const Author = (item: IUserGetResultService, index: number) => {
     return (
       <div key={item._id} className="card-wrapper">
         <div className="card">
@@ -71,29 +64,32 @@ class ComponentThemeAuthors extends ComponentHelperClass<
     );
   };
 
-  render() {
-    return (
-      <section className="authors-section">
-        <div className="container">
-          <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
-            {this.getComponentElementContents('title')?.content}
-          </h2>
-          <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
-            {this.getComponentElementContents('describe')?.content}
-          </p>
-          <div className="container d-flex flex-wrap justify-content-center">
-            {this.props.component.customData?.authors?.map((author, index) =>
-              this.Author(author, index)
-            )}
-          </div>
+  return (
+    <section className="authors-section">
+      <div className="container">
+        <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
+          {componentElementContents('title')?.content}
+        </h2>
+        <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
+          {componentElementContents('describe')?.content}
+        </p>
+        <div className="container d-flex flex-wrap justify-content-center">
+          {component.customData?.authors?.map((author, index) =>
+            Author(author, index)
+          )}
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
 }
 
-ComponentThemeAuthors.initComponentServerSideProps = async (req, component) => {
+const componentServerSideProps: IFuncComponentServerSideProps = async (
+  store,
+  req,
+  component
+) => {
   component.customData = {};
+
   component.customData.authors = (
     await UserService.getMany({
       statusId: StatusId.Active,
@@ -101,5 +97,7 @@ ComponentThemeAuthors.initComponentServerSideProps = async (req, component) => {
     })
   ).data;
 };
+
+ComponentThemeAuthors.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeAuthors;

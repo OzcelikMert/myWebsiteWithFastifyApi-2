@@ -1,6 +1,4 @@
-import React from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
+import React, { useState } from 'react';
 import { IPostGetManyResultService } from 'types/services/post.service';
 import { PostService } from '@services/post.service';
 import { PostTypeId } from '@constants/postTypes';
@@ -9,131 +7,137 @@ import ComponentBlog from '@components/elements/blog';
 import ComponentLoadingButton from '@components/elements/button/loadingButton';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { IComponentGetResultService } from 'types/services/component.service';
+import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { useAppSelector } from '@lib/hooks';
+import { HelperUtil } from '@utils/helper.util';
+import { useSelector } from 'react-redux';
+import { translation } from '@lib/features/translationSlice';
 
-type IPageState = {
+type IComponentState = {
   lastBlogs: IPostGetManyResultService[];
   isActiveShowMoreButton: boolean;
+  pageNumber: number;
 };
 
-type IPageProps = {
+type IComponentProps = {
   component: IComponentGetResultService<{
     lastBlogs?: IPostGetManyResultService[];
     maxBlogCount?: number;
   }>;
-} & IPagePropCommon;
+};
 
 const perPageBlogCount = 3;
 
-class ComponentThemeLastBlogs extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  pageNumber = 1;
+function ComponentThemeLastBlogs({ component }: IComponentProps) {
+  const [isActiveShowMoreButton, setIsActiveShowMoreButton] =
+    useState<IComponentState['isActiveShowMoreButton']>(true);
+  const [pageNumber, setPageNumber] =
+    useState<IComponentState['pageNumber']>(1);
+  const [lastBlogs, setLastBlogs] = useState<IComponentState['lastBlogs']>(
+    component.customData?.lastBlogs ?? []
+  );
 
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {
-      lastBlogs: this.props.component.customData?.lastBlogs ?? [],
-      isActiveShowMoreButton: true,
-    };
-  }
+  const selectedLangId = useAppSelector(
+    (state) => state.appState.selectedLangId
+  );
 
-  async onClickShowMore() {
-    if (!this.state.isActiveShowMoreButton) return false;
-    this.pageNumber += 1;
+  const t = useSelector(translation);
+
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
+
+  const MemoizedComponentBlog = React.memo(ComponentBlog);
+
+  const onClickShowMore = async () => {
+    if (!isActiveShowMoreButton) return false;
+    setPageNumber((state) => state + 1);
     const serviceResult = await PostService.getMany({
-      langId: this.props.appData.selectedLangId,
+      langId: selectedLangId,
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: perPageBlogCount,
-      page: this.pageNumber,
+      page: pageNumber,
     });
     if (serviceResult.status && serviceResult.data) {
-      this.setState(
-        {
-          lastBlogs: [...this.state.lastBlogs, ...serviceResult.data],
-        },
-        () => {
-          this.setState({
-            isActiveShowMoreButton:
-              (this.props.component.customData?.maxBlogCount ?? 0) >
-              this.state.lastBlogs.length,
-          });
-        }
+      setLastBlogs((state) => [...state, ...(serviceResult.data ?? [])]);
+      setIsActiveShowMoreButton(
+        (component.customData?.maxBlogCount ?? 0) > lastBlogs.length
       );
     }
-  }
+  };
 
-  render() {
-    return (
-      <section className="blogs-section">
-        <div className="container">
-          <AnimationOnScroll
-            animateIn="animate__fadeInDown"
-            animateOnce={true}
-            animatePreScroll={false}
-          >
-            <h2 className="section-header">
-              {this.getComponentElementContents('title')?.content}
-            </h2>
-          </AnimationOnScroll>
-          <AnimationOnScroll
-            animateIn="animate__fadeInDown"
-            delay={200}
-            animateOnce={true}
-            animatePreScroll={false}
-          >
-            <p className="section-content">
-              {this.getComponentElementContents('describe')?.content}
-            </p>
-          </AnimationOnScroll>
-          <AnimationOnScroll
-            animateIn="animate__fadeInRight"
-            delay={400}
-            animateOnce={true}
-            animatePreScroll={false}
-          >
-            <div className="blogs">
-              <div className="row">
-                {this.state.lastBlogs.map((item, index) => (
-                  <ComponentBlog
-                    {...this.props}
-                    className={`col-md-4 mt-4 mt-md-0`}
-                    item={item}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="w-100 pt-5 text-center show-more">
-              {this.state.isActiveShowMoreButton ? (
-                <ComponentLoadingButton
-                  text={this.props.t('showMore')}
-                  onClick={() => this.onClickShowMore()}
+  return (
+    <section className="blogs-section">
+      <div className="container">
+        <AnimationOnScroll
+          animateIn="animate__fadeInDown"
+          animateOnce={true}
+          animatePreScroll={false}
+        >
+          <h2 className="section-header">
+            {componentElementContents('title')?.content}
+          </h2>
+        </AnimationOnScroll>
+        <AnimationOnScroll
+          animateIn="animate__fadeInDown"
+          delay={200}
+          animateOnce={true}
+          animatePreScroll={false}
+        >
+          <p className="section-content">
+            {componentElementContents('describe')?.content}
+          </p>
+        </AnimationOnScroll>
+        <AnimationOnScroll
+          animateIn="animate__fadeInRight"
+          delay={400}
+          animateOnce={true}
+          animatePreScroll={false}
+        >
+          <div className="blogs">
+            <div className="row">
+              {lastBlogs.map((item, index) => (
+                <MemoizedComponentBlog
+                  className={`col-md-4 mt-4 mt-md-0`}
+                  item={item}
+                  index={index}
                 />
-              ) : null}
+              ))}
             </div>
-          </AnimationOnScroll>
-        </div>
-      </section>
-    );
-  }
+          </div>
+          <div className="w-100 pt-5 text-center show-more">
+            {isActiveShowMoreButton ? (
+              <ComponentLoadingButton
+                text={t('showMore')}
+                onClick={() => onClickShowMore()}
+              />
+            ) : null}
+          </div>
+        </AnimationOnScroll>
+      </div>
+    </section>
+  );
 }
 
-ComponentThemeLastBlogs.initComponentServerSideProps = async (
+const componentServerSideProps: IFuncComponentServerSideProps = async (
+  store,
   req,
   component
 ) => {
   component.customData = {};
+
+  const { appState } = store.getState();
+
   component.customData.lastBlogs = (
     await PostService.getMany({
-      langId: req.appData.selectedLangId,
+      langId: appState.selectedLangId,
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: perPageBlogCount,
       page: 1,
     })
   ).data;
+
   component.customData.maxBlogCount = (
     await PostService.getCount({
       typeId: PostTypeId.Blog,
@@ -141,5 +145,7 @@ ComponentThemeLastBlogs.initComponentServerSideProps = async (
     })
   ).data;
 };
+
+ComponentThemeLastBlogs.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeLastBlogs;

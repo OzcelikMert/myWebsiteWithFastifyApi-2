@@ -1,199 +1,195 @@
-import React, { FormEvent } from 'react';
-import { IPagePropCommon } from 'types/pageProps';
-import { ComponentHelperClass } from '@classes/componentHelper.class';
+import React, { FormEvent, useReducer, useState } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { VariableLibrary } from '@library/variable';
 import { Form } from 'react-bootstrap';
 import ComponentLoadingButton from '@components/elements/button/loadingButton';
 import { MailerService } from '@services/mailer.service';
-import { HandleFormLibrary } from '@library/react/handles/form';
+import { useFormReducer } from '@library/react/handles/form';
+import { HelperUtil } from '@utils/helper.util';
 
-type IPageState = {
-  isSending: boolean;
-  isSuccessful: boolean;
-  formData: {
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-  };
+type IComponentProps = {
+  component: IComponentGetResultService;
 };
 
-type IPageProps = {
-  component: IComponentGetResultService;
-} & IPagePropCommon;
+export default function ComponentThemeContactPageForm({
+  component,
+}: IComponentProps) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { formState, onChangeInput } = useFormReducer(initialFormState);
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
 
-class ComponentThemeContactPageForm extends ComponentHelperClass<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {
-      isSuccessful: false,
-      isSending: false,
-      formData: {
-        name: '',
-        subject: '',
-        email: '',
-        message: '',
-      },
-    };
-  }
-
-  async onSubmit(event: FormEvent) {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
     const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 
     if (
       VariableLibrary.isEmpty(
-        this.state.formData.email,
-        this.state.formData.subject,
-        this.state.formData.name,
-        this.state.formData.message
+        formState.email,
+        formState.subject,
+        formState.name,
+        formState.message
       ) ||
-      !this.state.formData.email.match(isValidEmail)
+      !formState.email.match(isValidEmail)
     ) {
       return null;
     }
 
-    this.setState(
-      {
-        isSending: true,
-      },
-      async () => {
-        const serviceResult = await MailerService.send({
-          email: this.state.formData.email,
-          message: this.getMailMessage,
-          key: this.props.component.key,
-        });
+    dispatch({ type: 'SET_SENDING', payload: true });
 
-        if (serviceResult.status) {
-          this.setState({
-            isSuccessful: true,
-          });
-        }
+    const serviceResult = await MailerService.send({
+      email: formState.email,
+      message: getMailMessage(),
+      key: component.key,
+    });
 
-        this.setState({
-          isSending: false,
-        });
-      }
-    );
-  }
+    dispatch({ type: 'SET_SENDING', payload: false });
 
-  get getMailMessage() {
+    if (serviceResult.status) {
+      dispatch({ type: 'SET_SUCCESSFUL', payload: true });
+    }
+  };
+
+  const getMailMessage = () => {
     return `
             <b>Local Time: </b> ${new Date()} </br>
-            <b>Name: </b> ${this.state.formData.name} </br>
-            <b>Email: </b> ${this.state.formData.email} </br>
-            <b>Subject: </b> ${this.state.formData.subject} </br>
+            <b>Name: </b> ${formState.name} </br>
+            <b>Email: </b> ${formState.email} </br>
+            <b>Subject: </b> ${formState.subject} </br>
             <hr>
             <b>Message: </b> </br> </br>
-            ${this.state.formData.message}
+            ${formState.message}
         `;
-  }
+  };
 
-  ContactFormSuccessMessage = () => {
+  const ContactFormSuccessMessage = () => {
     return (
       <div>
         <h5 className="text-success animate__animated animate__fadeInUp">
-          {this.getComponentElementContents('successMessage')?.content}
+          {componentElementContents('successMessage')?.content}
         </h5>
       </div>
     );
   };
 
-  ContactForm = () => {
+  const ContactForm = () => {
     return (
       <div>
-        <Form onSubmit={(event) => this.onSubmit(event)}>
+        <Form onSubmit={(event) => onSubmit(event)}>
           <Form.Group className="mb-3">
             <Form.Label>
-              {this.getComponentElementContents('fullName')?.content}
+              {componentElementContents('fullName')?.content}
             </Form.Label>
             <Form.Control
               type="text"
-              placeholder={
-                this.getComponentElementContents('fullNameInput')?.content
-              }
+              placeholder={componentElementContents('fullNameInput')?.content}
               name="formData.name"
-              value={this.state.formData.name}
-              onChange={(e) => HandleFormLibrary.onChangeInput(e, this)}
+              value={formState.name}
+              onChange={(e) => onChangeInput(e)}
               required
             />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>
-              {this.getComponentElementContents('email')?.content}
+              {componentElementContents('email')?.content}
             </Form.Label>
             <Form.Control
               type="email"
-              placeholder={
-                this.getComponentElementContents('emailInput')?.content
-              }
+              placeholder={componentElementContents('emailInput')?.content}
               name="formData.email"
-              value={this.state.formData.email}
-              onChange={(e) => HandleFormLibrary.onChangeInput(e, this)}
+              value={formState.email}
+              onChange={(e) => onChangeInput(e)}
               required
             />
             <Form.Text className="text-muted">
-              {this.getComponentElementContents('emailShortContent')?.content}
+              {componentElementContents('emailShortContent')?.content}
             </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>
-              {this.getComponentElementContents('subject')?.content}
+              {componentElementContents('subject')?.content}
             </Form.Label>
             <Form.Control
               type="text"
-              placeholder={
-                this.getComponentElementContents('subjectInput')?.content
-              }
+              placeholder={componentElementContents('subjectInput')?.content}
               name="formData.subject"
-              value={this.state.formData.subject}
-              onChange={(e) => HandleFormLibrary.onChangeInput(e, this)}
+              value={formState.subject}
+              onChange={(e) => onChangeInput(e)}
               required
             />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>
-              {this.getComponentElementContents('message')?.content}
+              {componentElementContents('message')?.content}
             </Form.Label>
             <Form.Control
               as="textarea"
               rows={5}
-              placeholder={
-                this.getComponentElementContents('messageInput')?.content
-              }
+              placeholder={componentElementContents('messageInput')?.content}
               name="formData.message"
-              value={this.state.formData.message}
-              onChange={(e) => HandleFormLibrary.onChangeInput(e, this)}
+              value={formState.message}
+              onChange={(e) => onChangeInput(e)}
               required
             />
           </Form.Group>
           <ComponentLoadingButton
-            text={this.getComponentElementContents('submitButtonText')?.content}
+            text={componentElementContents('submitButtonText')?.content}
             className="btn btn-primary"
             type="submit"
-            isLoading={this.state.isSending}
+            isLoading={state.isSending}
           />
         </Form>
       </div>
     );
   };
 
-  render() {
-    return (
-      <section className="contact-form-section">
-        <div className="container">
-          {this.state.isSuccessful
-            ? this.ContactFormSuccessMessage()
-            : this.ContactForm()}
-        </div>
-      </section>
-    );
-  }
+  return (
+    <section className="contact-form-section">
+      <div className="container">
+        {state.isSuccessful ? ContactFormSuccessMessage() : ContactForm()}
+      </div>
+    </section>
+  );
 }
 
-export default ComponentThemeContactPageForm;
+type IComponentState = {
+  isSending: boolean;
+  isSuccessful: boolean;
+};
+
+const initialState: IComponentState = {
+  isSending: false,
+  isSuccessful: false,
+};
+
+type IComponentFormState = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
+
+const initialFormState: IComponentFormState = {
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+};
+
+type IAction =
+  | { type: 'SET_SENDING'; payload: boolean }
+  | { type: 'SET_SUCCESSFUL'; payload: boolean };
+
+function reducer(state: IComponentState, action: IAction): IComponentState {
+  switch (action.type) {
+    case 'SET_SENDING':
+      if (state.isSending == action.payload) return state;
+      return { ...state, isSending: action.payload };
+    case 'SET_SUCCESSFUL':
+      if (state.isSuccessful == action.payload) return state;
+      return { ...state, isSuccessful: action.payload };
+    default:
+      return state;
+  }
+}

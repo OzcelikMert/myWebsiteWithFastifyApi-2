@@ -4,9 +4,12 @@ import { HelperUtil } from '@utils/helper.util';
 
 type IComponentProps = {
   component: IComponentGetResultService;
-}
+};
 
-export default function ComponentThemeError404({component}: IComponentProps) {
+export default function ComponentThemeError404({ component }: IComponentProps) {
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
+
   return (
     <div>
       <div className="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
@@ -16,15 +19,13 @@ export default function ComponentThemeError404({component}: IComponentProps) {
               <i className="bi bi-exclamation-triangle triangle-color display-1"></i>
               <h1 className="display-1 font">404</h1>
               <h1 className="mb-4 font">
-                {HelperUtil.getComponentElementContents(component, 'title')?.content}
+                {componentElementContents('title')?.content}
               </h1>
               <p className="mb-4 desc">
-                {HelperUtil.getComponentElementContents(component, 'describe')?.content}
+                {componentElementContents('describe')?.content}
               </p>
               <a className="btn btn-outline-primary btn-lg" href="/">
-                <span>
-                  {HelperUtil.getComponentElementContents(component, 'buttonText')?.content}
-                </span>
+                <span>{componentElementContents('buttonText')?.content}</span>
               </a>
             </div>
           </div>

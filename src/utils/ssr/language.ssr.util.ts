@@ -56,7 +56,7 @@ const init = async (
             appState.selectedLangId = foundCookieLanguageWithLocale._id;
             appState.selectedLangCode = appState.cookies.langCode ?? "";
             if (appState.cookies.langId != appState.selectedLangId) {
-              CookieSSRUtil.setLangId(req, res);
+              CookieSSRUtil.setLangId(store, req, res);
             }
           } else {
             UrlSSRUtil.move(

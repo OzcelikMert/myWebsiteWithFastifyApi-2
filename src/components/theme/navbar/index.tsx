@@ -11,7 +11,7 @@ import { HelperUtil } from '@utils/helper.util';
 
 type IComponentState = {
   isNavbarSticky: boolean;
-  navbarStatus: { [key: string]: any }
+  navbarStatus: { [key: string]: any };
 };
 
 type IComponentProps = {
@@ -20,18 +20,23 @@ type IComponentProps = {
   }>;
 };
 
-function ComponentThemeNavbar({component}: IComponentProps) {
-  const [isNavbarSticky, setIsNavbarSticky] = useState<IComponentState["isNavbarSticky"]>(false);
-  const [navbarStatus, setNavbarStatus] = useState<IComponentState["navbarStatus"]>({});
-  const appState = useAppSelector(state => state.appState);
+function ComponentThemeNavbar({ component }: IComponentProps) {
+  const [isNavbarSticky, setIsNavbarSticky] =
+    useState<IComponentState['isNavbarSticky']>(false);
+  const [navbarStatus, setNavbarStatus] = useState<
+    IComponentState['navbarStatus']
+  >({});
+  const appState = useAppSelector((state) => state.appState);
+  let componentElementContents =
+    HelperUtil.getComponentElementContents(component);
 
   useEffect(() => {
     setEvents();
-  })
+  });
 
   const setEvents = () => {
     window.addEventListener('scroll', () => onScrolling());
-  }
+  };
 
   const onScrolling = () => {
     if (window.scrollY > window.frames.innerHeight) {
@@ -43,18 +48,16 @@ function ComponentThemeNavbar({component}: IComponentProps) {
         setIsNavbarSticky(false);
       }
     }
-  }
+  };
 
   const onShowDropdown = (navigationId: string, isShow: boolean) => {
-    setNavbarStatus({[navigationId]: isShow})
+    setNavbarStatus({ [navigationId]: isShow });
   };
 
   const DropdownItem = (props: INavigationGetResultService, index: number) => {
     const children =
-      component.customData?.navigations?.findMulti(
-        'parentId._id',
-        props._id
-      ) ?? [];
+      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      [];
 
     return children.length > 0 ? (
       Dropdown(props, index)
@@ -73,10 +76,8 @@ function ComponentThemeNavbar({component}: IComponentProps) {
 
   const Dropdown = (props: INavigationGetResultService, index: number) => {
     const children =
-      component.customData?.navigations?.findMulti(
-        'parentId._id',
-        props._id
-      ) ?? [];
+      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      [];
 
     return (
       <NavDropdown
@@ -87,13 +88,9 @@ function ComponentThemeNavbar({component}: IComponentProps) {
         drop={props.parentId ? 'end' : 'down'}
         onMouseEnter={(event) => onShowDropdown(props._id, true)}
         onMouseLeave={(event) => onShowDropdown(props._id, false)}
-        onClick={(event) =>
-          onShowDropdown(props._id, !navbarStatus[props._id])
-        }
+        onClick={(event) => onShowDropdown(props._id, !navbarStatus[props._id])}
       >
-        {children.map((child, childIndex) =>
-          DropdownItem(child, childIndex)
-        )}
+        {children.map((child, childIndex) => DropdownItem(child, childIndex))}
       </NavDropdown>
     );
   };
@@ -101,10 +98,8 @@ function ComponentThemeNavbar({component}: IComponentProps) {
   const NavItem = (props: INavigationGetResultService, index: number) => {
     if (props.parentId) return null;
     const children =
-      component.customData?.navigations?.findMulti(
-        'parentId._id',
-        props._id
-      ) ?? [];
+      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      [];
 
     return children.length > 0 ? (
       Dropdown(props, index)
@@ -142,15 +137,15 @@ function ComponentThemeNavbar({component}: IComponentProps) {
           </Navbar.Toggle>
           <Navbar.Collapse id="nav">
             <Nav>
-              {component.customData?.navigations?.map(
-                (navigation, index) => NavItem(navigation, index)
+              {component.customData?.navigations?.map((navigation, index) =>
+                NavItem(navigation, index)
               )}
             </Nav>
             <a
               className="btn btn-warning login-btn"
               href="http://localhost:3001/login"
             >
-              {HelperUtil.getComponentElementContents(component, 'buttonText')?.content}
+              {componentElementContents('buttonText')?.content}
             </a>
           </Navbar.Collapse>
         </Navbar>
@@ -159,7 +154,11 @@ function ComponentThemeNavbar({component}: IComponentProps) {
   );
 }
 
-const componentServerSideProps: IFuncComponentServerSideProps = async (store, req, component) => {
+const componentServerSideProps: IFuncComponentServerSideProps = async (
+  store,
+  req,
+  component
+) => {
   component.customData = {};
 
   const { appState } = store.getState();
