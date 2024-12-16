@@ -29,13 +29,13 @@ type IComponentProps = {
 const perPageBlogCount = 3;
 
 function ComponentThemeLastBlogs({ component }: IComponentProps) {
-  const [isActiveShowMoreButton, setIsActiveShowMoreButton] =
-    useState<IComponentState['isActiveShowMoreButton']>(true);
-  const [pageNumber, setPageNumber] =
-    useState<IComponentState['pageNumber']>(1);
   const [lastBlogs, setLastBlogs] = useState<IComponentState['lastBlogs']>(
     component.customData?.lastBlogs ?? []
   );
+  const [isActiveShowMoreButton, setIsActiveShowMoreButton] =
+    useState<IComponentState['isActiveShowMoreButton']>((component.customData?.maxBlogCount ?? 0) > lastBlogs.length);
+  const [pageNumber, setPageNumber] =
+    useState<IComponentState['pageNumber']>(1);
 
   const selectedLangId = useAppSelector(
     (state) => state.appState.selectedLangId

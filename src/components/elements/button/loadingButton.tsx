@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 
-type IPageState = {
+type IComponentState = {
   isLoading: boolean;
 };
 
-type IPageProps = {
+type IComponentProps = {
   text?: string;
   onClick?: () => void;
   className?: string;
@@ -12,50 +12,38 @@ type IPageProps = {
   isLoading?: boolean;
 };
 
-export default class ComponentLoadingButton extends Component<
-  IPageProps,
-  IPageState
-> {
-  constructor(props: IPageProps) {
-    super(props);
-    this.state = {
-      isLoading: false,
-    };
-  }
+export default function ComponentLoadingButton({
+  className,
+  isLoading,
+  onClick,
+  text,
+  type,
+}: IComponentProps) {
+  const [isLoadingState, setIsLoadingState] =
+    useState<IComponentState['isLoading']>(false);
 
-  async onClick() {
-    if (typeof this.props.isLoading != 'undefined' || this.state.isLoading)
-      return false;
-    this.setState(
-      {
-        isLoading: true,
-      },
-      async () => {
-        if (this.props.onClick) {
-          await this.props.onClick();
-        }
-        this.setState({
-          isLoading: false,
-        });
-      }
-    );
-  }
+  const _onClick = async () => {
+    if (typeof isLoading != 'undefined' && isLoading) return false;
+    else if (isLoadingState) return false;
 
-  render() {
-    const isLoading =
-      typeof this.props.isLoading != 'undefined'
-        ? this.props.isLoading
-        : this.state.isLoading;
-    return (
-      <button
-        type={this.props.type ?? 'button'}
-        className={`${this.props.className ?? 'btn btn-outline-primary btn-lg'}`}
-        onClick={(event) => this.onClick()}
-        disabled={isLoading}
-      >
-        <span>{this.props.text}</span>
-        {isLoading ? <i className="fa fa-spinner fa-spin ms-1"></i> : null}
-      </button>
-    );
-  }
+    setIsLoadingState(true);
+    if (onClick) {
+      await onClick();
+    }
+    setIsLoadingState(false);
+  };
+
+  const _isLoading =
+    typeof isLoading != 'undefined' ? isLoading : isLoadingState;
+  return (
+    <button
+      type={type ?? 'button'}
+      className={`${className ?? 'btn btn-outline-primary btn-lg'}`}
+      onClick={(event) => _onClick()}
+      disabled={_isLoading}
+    >
+      <span>{text}</span>
+      {_isLoading ? <i className="fa fa-spinner fa-spin ms-1"></i> : null}
+    </button>
+  );
 }

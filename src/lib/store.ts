@@ -12,10 +12,11 @@ export const makeStore  = () => {
         appState: appReducer,
         pageState: pageReducer
     },
+    devTools: true
   })
 };
 
-export const wrapper = createWrapper(makeStore);
 export type IAppStore = ReturnType<typeof makeStore>;
 export type IRootState = ReturnType<IAppStore['getState']>;
 export type IAppDispatch = IAppStore['dispatch'];
+export const wrapper = createWrapper<IAppStore>(makeStore, {debug: true});

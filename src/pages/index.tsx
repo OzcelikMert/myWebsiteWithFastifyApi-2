@@ -1,42 +1,39 @@
-import React, { Component } from 'react';
-import { GetServerSidePropsContext } from 'next';
-import { IPagePropCommon } from 'types/pageProps';
+import React from 'react';
 import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentThemeSelectedComponents from '@components/theme/selectedComponents';
 import ComponentAppLayout from '@components/app/layout';
+import { wrapper } from '@lib/store';
+import { useAppSelector } from '@lib/hooks';
 
-type PageState = {};
+export default function PageHome() {
+  console.log("******PageHome*******", useAppSelector(state => state.pageState));
+  
 
-type PageProps = {} & IPagePropCommon;
-
-export default class PageHome extends Component<PageProps, PageState> {
-  constructor(props: PageProps) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <ComponentAppLayout {...this.props}>
-        <div className="page page-home">
-          <ComponentThemeSelectedComponents {...this.props} />
-        </div>
-      </ComponentAppLayout>
-    );
-  }
+  return (
+    <ComponentAppLayout>
+      <div className="page page-home">
+        <ComponentThemeSelectedComponents />
+      </div>
+    </ComponentAppLayout>
+  );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const req = context.req;
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (context) => {
+    const req = context.req;
 
-  await PageSSRUtil.init({
-    req: req,
-    url: 'homepage',
-    typeId: PageTypeId.Home,
-    increaseView: true,
-  });
+    await PageSSRUtil.init(store, {
+      req: req,
+      url: 'homepage',
+      typeId: PageTypeId.Home,
+      increaseView: true,
+    });
 
-  return {
-    props: PageSSRUtil.getProps(req),
-  };
-}
+    console.log("******PageHome getServerSideProps*******", store.getState().pageState.page);
+
+    return {
+      props: {},
+    };
+  }
+);

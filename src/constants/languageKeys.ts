@@ -5,7 +5,7 @@ export const LanguageKey = [
   'authors',
   'previous',
   'next',
-  'blogFoundMessage',
+  'blogFoundMessageWithVariable',
   'showMore',
   'blogsYouMightLike',
   'subscribeSuccessMessageWithVariable',

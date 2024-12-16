@@ -10,7 +10,7 @@ import { useAppSelector } from '@lib/hooks';
 
 type IComponentProps = {
   children: React.ReactNode;
-  pageTitle: string;
+  pageTitle?: string;
   headerBgImage?: string;
   headerContent?: string;
   headerButtons?: JSX.Element;

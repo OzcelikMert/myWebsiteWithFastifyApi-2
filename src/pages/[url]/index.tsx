@@ -1,48 +1,52 @@
-import React, { Component } from 'react';
-import { GetServerSidePropsContext } from 'next';
-import { IPagePropCommon } from 'types/pageProps';
+import React from 'react';
 import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentThemeSelectedComponents from '@components/theme/selectedComponents';
 import ComponentAppLayout from '@components/app/layout';
+import { wrapper } from '@lib/store';
+import { setQueriesState } from '@lib/features/pageSlice';
+import { useAppSelector } from '@lib/hooks';
 
-type PageState = {};
+type IPageQueries = {
+  url: string;
+};
 
-type PageProps = {} & IPagePropCommon<{ url?: string }>;
+export default function PageURL() {
+  const page = useAppSelector((state) => state.pageState.page);
+  const queries = useAppSelector(
+    (state) => state.pageState.queries as IPageQueries
+  );
 
-export default class PageURL extends Component<PageProps, PageState> {
-  constructor(props: PageProps) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <ComponentAppLayout
-        {...this.props}
-        pageTitle={`${this.props.pageData.page?.contents?.title || this.props.pageData.url}`}
-      >
-        <div className="page page-default">
-          <ComponentThemeSelectedComponents {...this.props} />
-        </div>
-      </ComponentAppLayout>
-    );
-  }
+  return (
+    <ComponentAppLayout pageTitle={`${page?.contents?.title || queries.url}`}>
+      <div className="page page-default">
+        <ComponentThemeSelectedComponents />
+      </div>
+    </ComponentAppLayout>
+  );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const req = context.req;
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (context) => {
+    const req = context.req;
+    let queries: IPageQueries = {
+      url: ""
+    }
 
-  const url = (context.params?.url as string) || '';
-  req.pageData.url = decodeURI(url);
+    let url = (context.params?.url as string) || '';
+    queries.url = decodeURI(url);
 
-  await PageSSRUtil.init({
-    req: req,
-    url: url,
-    typeId: PageTypeId.Default,
-    increaseView: true,
-  });
+    store.dispatch(setQueriesState(queries));
 
-  return {
-    props: PageSSRUtil.getProps(req),
-  };
-}
+    await PageSSRUtil.init(store, {
+      req: req,
+      url: url,
+      typeId: PageTypeId.Default,
+      increaseView: true,
+    });
+
+    return {
+      props: {},
+    };
+  }
+);

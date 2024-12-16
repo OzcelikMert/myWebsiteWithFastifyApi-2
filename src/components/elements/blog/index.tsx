@@ -107,7 +107,7 @@ export default function ComponentBlog({
 
   const blogURL = UrlUtil.createHref({
     url: url,
-    targetPath: EndPoints.BLOG(item.contents?.url),
+    targetPath: EndPoints.BLOG_WITH.URL(item.contents?.url),
   });
 
   return (

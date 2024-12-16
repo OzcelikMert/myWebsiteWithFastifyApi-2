@@ -17,24 +17,26 @@ import { wrapper } from '@lib/store';
 import StoreProvider from '@components/providers/storeProvider';
 import { setSettingsState, setURLState } from '@lib/features/appSlice';
 import { setIsSitemapState } from '@lib/features/pageSlice';
+import { Provider } from 'react-redux';
 
-function App(props: AppProps) {
-  const { pageProps, Component, router } = props;
+function App({ Component, ...rest }: AppContext) {
+  //console.log(rest);
+  const { store, props } = wrapper.useWrappedStore(rest);
+  console.log("*******App*******", store.getState());
+  
   return (
-    <StoreProvider {...pageProps} router={router}>
+    <Provider store={store}>
       <Component />
-    </StoreProvider>
+    </Provider>
   );
 }
 
 App.getInitialProps = wrapper.getInitialAppProps(
-  (store) => async (props: AppContext) => {
-    if (typeof window === 'undefined' && props.ctx.req && props.ctx.res) {
-      const req = props.ctx.req;
-      const res = props.ctx.res;
+  (store) => async (props) => {
+    const req = props.ctx.req;
+    const res = props.ctx.res;
 
-      const {appState, pageState} = store.getState();
-
+    if (typeof window === 'undefined' && req && res) {
       const url = UrlSSRUtil.get(req);
       store.dispatch(setURLState(url));
       console.log(url);
@@ -56,12 +58,21 @@ App.getInitialProps = wrapper.getInitialAppProps(
         };
       }
 
+      const {appState} = store.getState();
+
       const serviceResultSettings = await SettingService.get({
         langId: appState.selectedLangId,
       });
 
       if (serviceResultSettings.status && serviceResultSettings.data) {
         store.dispatch(setSettingsState(serviceResultSettings.data));
+      }
+
+      //console.log("app serverSideProps", store.getState());
+      
+
+      return {
+        pageProps: {}
       }
     }
 

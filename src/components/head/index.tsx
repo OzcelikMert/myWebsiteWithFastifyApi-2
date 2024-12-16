@@ -7,18 +7,19 @@ import HTMLReactParser from 'html-react-parser';
 import { useAppSelector } from '@lib/hooks';
 
 type IComponentProps = {
-  title: string;
+  title?: string;
 };
 
 export default function ComponentHead({ title }: IComponentProps) {
-  const { appState, pageState } = useAppSelector((state) => state);
+  const appState = useAppSelector((state) => state.appState);
+  const page = useAppSelector((state) => state.pageState.page);
 
   const getTitle = () => {
     let defaultTitle = appState.settings.seoContents?.title;
     if (title) {
       title = `${defaultTitle} | ${title}`;
-    } else if (pageState.page) {
-      title = `${defaultTitle} | ${pageState.page.contents?.title}`;
+    } else if (page) {
+      title = `${defaultTitle} | ${page.contents?.title}`;
     }
     return title;
   }
@@ -26,8 +27,8 @@ export default function ComponentHead({ title }: IComponentProps) {
   const getKeywords = () => {
     let keywords: string[] = [];
   
-    if (pageState.page && pageState.page.tags && pageState.page.tags.length > 0) {
-      keywords = pageState.page.tags
+    if (page && page.tags && page.tags.length > 0) {
+      keywords = page.tags
         .map((tag) => tag?.contents?.title)
         .filter((tag) => tag) as string[];
     } else if (
@@ -41,7 +42,7 @@ export default function ComponentHead({ title }: IComponentProps) {
   }
   
   const getAlternates = () => {
-    return pageState.page?.alternates?.map((alternate) => {
+    return page?.alternates?.map((alternate) => {
       const language = appState.languages.findSingle('_id', alternate.langId);
       if (language) {
         return (
@@ -60,7 +61,7 @@ export default function ComponentHead({ title }: IComponentProps) {
   }
   
   const getFacebookAlternates = () => {
-    return pageState.page?.alternates?.map((alternate) => {
+    return page?.alternates?.map((alternate) => {
       const language = appState.languages.findSingle('_id', alternate.langId);
       if (language) {
         return (
@@ -75,7 +76,7 @@ export default function ComponentHead({ title }: IComponentProps) {
 
   const pageTitle = getTitle();
   const desc =
-    pageState.page?.contents?.shortContent ||
+    page?.contents?.shortContent ||
     appState.settings.seoContents?.content ||
     '';
   const logo = ImageSourceUtil.getUploadedImageSrc(appState.settings.logo);
@@ -93,7 +94,7 @@ export default function ComponentHead({ title }: IComponentProps) {
       />
       <link rel="canonical" href={appState.url.full} />
       <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      {pageState.page?.isNoIndex ? (
+      {page?.isNoIndex ? (
         <meta name="robots" content="noindex, nofollow" />
       ) : null}
       <meta name="description" content={desc} />

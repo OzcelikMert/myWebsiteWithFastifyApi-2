@@ -10,7 +10,7 @@ const initialState: ITranslationState = {
 }
 
 const translationSlice = createSlice({
-  name: 'translation',
+  name: 'translationState',
   initialState,
   reducers: {
     setTranslationState: (state, action) => {

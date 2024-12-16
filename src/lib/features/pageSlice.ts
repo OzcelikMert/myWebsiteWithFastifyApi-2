@@ -7,33 +7,50 @@ export type IPageState = {
   page?: IPostGetOneResultService | null;
   publicComponents: IComponentGetResultService[];
   privateComponents: IComponentGetResultService[];
+  queries: { [key: string]: any };
 };
 
 const initialState: IPageState = {
   isSitemap: false,
   page: null,
   privateComponents: [],
-  publicComponents: []
-}
+  publicComponents: [],
+  queries: {},
+};
 
 const pageSlice = createSlice({
-  name: 'page',
+  name: 'pageState',
   initialState,
   reducers: {
-    setIsSitemapState(state, action: PayloadAction<IPageState["isSitemap"]>) {
+    setIsSitemapState(state, action: PayloadAction<IPageState['isSitemap']>) {
       state.isSitemap = action.payload;
     },
-    setPageState(state, action: PayloadAction<IPageState["page"]>) {
-      state.page = action.payload;
+    setPageState(state, action: PayloadAction<IPageState['page']>) {
+      state.page = Object.assign(state.page || {}, action.payload);
     },
-    setPrivateComponentsState(state, action: PayloadAction<IPageState["privateComponents"]>) {
+    setPrivateComponentsState(
+      state,
+      action: PayloadAction<IPageState['privateComponents']>
+    ) {
       state.privateComponents = action.payload;
     },
-    setPublicComponentsState(state, action: PayloadAction<IPageState["publicComponents"]>) {
+    setPublicComponentsState(
+      state,
+      action: PayloadAction<IPageState['publicComponents']>
+    ) {
       state.publicComponents = action.payload;
+    },
+    setQueriesState(state, action: PayloadAction<IPageState['queries']>) {
+      state.queries = Object.assign(state.queries, action.payload);
     },
   },
 });
 
-export const { setIsSitemapState, setPageState, setPrivateComponentsState, setPublicComponentsState } = pageSlice.actions;
+export const {
+  setIsSitemapState,
+  setPageState,
+  setPrivateComponentsState,
+  setPublicComponentsState,
+  setQueriesState,
+} = pageSlice.actions;
 export const pageReducer = pageSlice.reducer;

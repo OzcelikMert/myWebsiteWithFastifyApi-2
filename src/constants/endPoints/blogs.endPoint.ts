@@ -11,7 +11,7 @@ export class BlogsEndPoint {
   CATEGORY(categoryURL?: string) {
     return PathUtil.createPath(
       this.mainPath,
-      `/category/${categoryURL ?? '[category]'}`
+      `/category/${categoryURL ?? ':category'}`
     );
   }
   CATEGORY_WITH(categoryURL?: string) {
@@ -21,7 +21,7 @@ export class BlogsEndPoint {
   AUTHOR(authorURL?: string) {
     return PathUtil.createPath(
       this.mainPath,
-      `/author/${authorURL ?? '[author]'}`
+      `/author/${authorURL ?? ':author'}`
     );
   }
   AUTHOR_WITH(authorURL?: string) {
@@ -29,7 +29,7 @@ export class BlogsEndPoint {
   }
 
   PAGE(page?: string) {
-    return PathUtil.createPath(this.mainPath, `/page/${page ?? '[page]'}`);
+    return PathUtil.createPath(this.mainPath, `/page/${page ?? ':page'}`);
   }
   PAGE_WITH(page?: string) {
     return new BlogsEndPoint(this.PAGE(page));
@@ -38,7 +38,7 @@ export class BlogsEndPoint {
   SEARCH(search?: string) {
     return PathUtil.createPath(
       this.mainPath,
-      `/search/${search ?? '[search]'}`
+      `/search/${search ?? ':search'}`
     );
   }
   SEARCH_WITH(search?: string) {

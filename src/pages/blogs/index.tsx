@@ -1,7 +1,5 @@
-import React, { Component } from 'react';
-import { GetServerSidePropsContext } from 'next';
+import React, { useState } from 'react';
 import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
-import { IPagePropCommon } from 'types/pageProps';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentAppLayout from '@components/app/layout';
 import { PostTermService } from '@services/postTerm.service';
@@ -16,85 +14,91 @@ import ComponentLoadingButton from '@components/elements/button/loadingButton';
 import { UserService } from '@services/user.service';
 import { IUserGetResultService } from 'types/services/user.service';
 import { EndPoints } from '@constants/endPoints';
-
-type PageState = {
-  blogs: IPostGetManyResultService[];
-  isActiveShowMoreButton: boolean;
-};
-
-type PageProps = {} & IPagePropCommon<{
-  blogs?: IPostGetManyResultService[];
-  maxBlogCount?: number;
-  category?: IPostTermGetResultService;
-  author?: IUserGetResultService;
-  params: {
-    search?: string;
-    page: number;
-  };
-}>;
+import { wrapper } from '@lib/store';
+import { useAppSelector } from '@lib/hooks';
+import { useSelector } from 'react-redux';
+import { translation } from '@lib/features/translationSlice';
 
 const perPageBlogCount = 9;
 
-export default class PageBlogs extends Component<PageProps, PageState> {
-  pageNumber = 1;
+type IComponentState = {
+  blogs: IPostGetManyResultService[];
+  isActiveShowMoreButton: boolean;
+  pageNumber: number;
+};
 
-  constructor(props: PageProps) {
-    super(props);
-    this.state = {
-      blogs: this.props.pageData.blogs ?? [],
-      isActiveShowMoreButton:
-        (this.props.pageData.maxBlogCount || 0) >
-        (this.props.pageData.blogs?.length || 0),
-    };
-  }
+type IPageQueries = {
+  blogs?: IPostGetManyResultService[];
+  maxBlogCount: number;
+  category: IPostTermGetResultService | null;
+  author: IUserGetResultService | null;
+  params: {
+    search?: string;
+    page: number;
+    category?: string;
+    author?: string;
+  };
+};
 
-  getPageTitle() {
-    let title: string = this.props.pageData.category
-      ? this.props.pageData.category.contents!.title!
-      : this.props.pageData.author?.name
-        ? this.props.pageData.author.name
-        : (this.props.pageData.params.search ?? '');
+export default function PageBlogs() {
+  const queries = useAppSelector(
+    (state) => state.pageState.queries as IPageQueries
+  );
 
-    if (this.props.pageData.params.page > 1) {
-      title = `${title.length > 0 ? '- ' : ''}${this.props.pageData.params.page}`;
+  const [pageNumber, setPageNumber] = useState<IComponentState['pageNumber']>(
+    queries.params.page || 1
+  );
+  const [blogs, setBlogs] = useState<IComponentState['blogs']>(
+    queries.blogs ?? []
+  );
+  const [isActiveShowMoreButton, setIsActiveShowMoreButton] = useState<
+    IComponentState['isActiveShowMoreButton']
+  >(queries.maxBlogCount > blogs.length);
+
+  const selectedLangId = useAppSelector(
+    (state) => state.appState.selectedLangId
+  );
+  const page = useAppSelector((state) => state.pageState.page);
+  const appState = useAppSelector((state) => state.appState);
+
+  const t = useSelector(translation);
+
+  const MemoizedComponentBlog = React.memo(ComponentBlog);
+
+  const getPageTitle = () => {
+    let title: string = queries.category
+      ? queries.category.contents!.title!
+      : queries.author?.name
+        ? queries.author.name
+        : (queries.params.search ?? '');
+
+    if (queries.params.page > 1) {
+      title = `${title.length > 0 ? '- ' : ''}${queries.params.page}`;
     }
 
-    return `${this.props.pageData.page?.contents?.title} ${title.length > 0 ? `- ${title}` : ''}`;
-  }
+    return `${page?.contents?.title} ${title.length > 0 ? `- ${title}` : ''}`;
+  };
 
-  async onClickShowMore() {
-    if (!this.state.isActiveShowMoreButton) return false;
-    this.pageNumber += 1;
+  const onClickShowMore = async () => {
+    if (isActiveShowMoreButton) return false;
+    setPageNumber((state) => state + 1);
     const serviceResult = await PostService.getMany({
-      langId: this.props.appData.selectedLangId,
+      langId: appState.selectedLangId,
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: perPageBlogCount,
-      page: this.pageNumber,
-      ...(this.props.pageData.category
-        ? { categories: [this.props.pageData.category._id] }
-        : {}),
-      ...(this.props.pageData.params.search
-        ? { title: this.props.pageData.params.search }
-        : {}),
+      page: pageNumber,
+      ...(queries.category ? { categories: [queries.category._id] } : {}),
+      ...(queries.params.search ? { title: queries.params.search } : {}),
     });
     if (serviceResult.status && serviceResult.data) {
-      this.setState(
-        {
-          blogs: [...this.state.blogs, ...serviceResult.data],
-        },
-        () => {
-          this.setState({
-            isActiveShowMoreButton:
-              (this.props.pageData.maxBlogCount || 0) > this.state.blogs.length,
-          });
-        }
-      );
+      setBlogs((state) => [...state, ...(serviceResult.data ?? [])]);
+      setIsActiveShowMoreButton(queries.maxBlogCount > blogs.length);
     }
-  }
+  };
 
-  AuthorSocialMedia = () => {
-    const author = this.props.pageData.author;
+  const AuthorSocialMedia = () => {
+    const author = queries.author;
     return (
       <div>
         <a className="me-4 fs-3 text-light" href={author?.facebook || '#'}>
@@ -116,122 +120,129 @@ export default class PageBlogs extends Component<PageProps, PageState> {
     );
   };
 
-  render() {
-    return (
-      <ComponentAppLayout
-        {...this.props}
-        pageTitle={this.getPageTitle()}
-        headerBgImage={
-          this.props.pageData.category?.contents?.image ||
-          this.props.pageData.author?.image
-        }
-        headerContent={
-          this.props.pageData.category?.contents?.shortContent ||
-          this.props.pageData.author?.comment
-        }
-        headerButtons={
-          this.props.pageData.author ? <this.AuthorSocialMedia /> : undefined
-        }
-      >
-        <div className="page page-blogs">
-          <section className="page-blogs">
-            <div className="container">
-              <div className="blogs">
-                <h5 className="animate__animated animate__fadeInLeft animate__fast">
-                  {this.props
-                    .t('blogFoundMessage')
-                    .replace(
-                      '{{blogsCount}}',
-                      this.props.pageData.maxBlogCount?.toString() || '0'
-                    )}
-                </h5>
-                <div className="row">
-                  {this.state.blogs.map((item, index) => (
-                    <ComponentBlog
-                      {...this.props}
-                      className={`col-md-4 mt-4`}
-                      item={item}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="w-100 pt-5 text-center show-more">
-                {this.state.isActiveShowMoreButton ? (
-                  <ComponentLoadingButton
-                    text={this.props.t('showMore')}
-                    onClick={() => this.onClickShowMore()}
+  return (
+    <ComponentAppLayout
+      pageTitle={getPageTitle()}
+      headerBgImage={queries.category?.contents?.image || queries.author?.image}
+      headerContent={
+        queries.category?.contents?.shortContent || queries.author?.comment
+      }
+      headerButtons={queries.author ? <AuthorSocialMedia /> : undefined}
+    >
+      <div className="page page-blogs">
+        <section className="page-blogs">
+          <div className="container">
+            <div className="blogs">
+              <h5 className="animate__animated animate__fadeInLeft animate__fast">
+                {t('blogFoundMessageWithVariable').replace(
+                  '{{blogsCount}}',
+                  queries.maxBlogCount?.toString() || '0'
+                )}
+              </h5>
+              <div className="row">
+                {blogs.map((item, index) => (
+                  <MemoizedComponentBlog
+                    className={`col-md-4 mt-4`}
+                    item={item}
+                    index={index}
                   />
-                ) : null}
+                ))}
               </div>
             </div>
-          </section>
-        </div>
-      </ComponentAppLayout>
-    );
-  }
+            <div className="w-100 pt-5 text-center show-more">
+              {isActiveShowMoreButton ? (
+                <ComponentLoadingButton
+                  text={t('showMore')}
+                  onClick={() => onClickShowMore()}
+                />
+              ) : null}
+            </div>
+          </div>
+        </section>
+      </div>
+    </ComponentAppLayout>
+  );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const req = context.req;
-  req.pageData.params = {};
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async (context) => {
+    const req = context.req;
+    const res = context.res;
 
-  const page = Number(context.params?.page ?? 1) || 1;
-  const search = decodeURI((context.params?.search as string) || '');
-  const categoryURL = (context.params?.category as string) || null;
-  const authorURL = (context.params?.author as string) || null;
-  req.pageData.params.search = search;
-  req.pageData.params.page = page;
-  req.pageData.params.categoryURL = categoryURL;
+    const { appState, pageState } = store.getState();
 
-  let categoryId = '';
-  if (categoryURL) {
-    const serviceResultCategory = await PostTermService.getWithURL({
-      typeId: PostTermTypeId.Category,
-      postTypeId: PostTypeId.Blog,
-      langId: req.appData.selectedLangId,
-      statusId: StatusId.Active,
-      url: categoryURL,
+    let queries: IPageQueries = {
+      author: null,
+      blogs: [],
+      category: null,
+      maxBlogCount: 0,
+      params: {
+        author: '',
+        category: '',
+        page: 1,
+        search: '',
+      },
+    };
+
+    const page = Number(context.params?.page ?? 1) || 1;
+    const search = decodeURI((context.params?.search as string) || '');
+    const categoryURL = (context.params?.category as string) || '';
+    const authorURL = (context.params?.author as string) || '';
+
+    queries.params.search = search;
+    queries.params.page = page;
+    queries.params.category = categoryURL;
+    queries.params.author = authorURL;
+
+    await PageSSRUtil.init(store, {
+      req: req,
+      url: 'blogs',
+      typeId: PageTypeId.Blogs,
+      increaseView: true,
     });
 
-    if (serviceResultCategory.status && serviceResultCategory.data) {
-      req.pageData.category = serviceResultCategory.data;
-      categoryId = serviceResultCategory.data._id;
+    if (pageState.page && pageState.page.pageTypeId == PageTypeId.Blogs) {
+      let categoryId = '';
+      if (categoryURL.length > 0) {
+        const serviceResultCategory = await PostTermService.getWithURL({
+          typeId: PostTermTypeId.Category,
+          postTypeId: PostTypeId.Blog,
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+          url: categoryURL,
+        });
 
-      await PostTermService.updateViewWithId({
-        _id: serviceResultCategory.data._id,
-        typeId: serviceResultCategory.data.typeId,
-        postTypeId: serviceResultCategory.data.postTypeId,
-        langId: req.appData.selectedLangId,
-        url: EndPoints.BLOGS_WITH.CATEGORY(categoryURL),
-      });
-    }
-  }
+        if (serviceResultCategory.status && serviceResultCategory.data) {
+          const category = serviceResultCategory.data;
+          queries.category = category;
+          categoryId = category._id;
 
-  let authorId = '';
-  if (authorURL) {
-    const serviceResultAuthor = await UserService.getWithURL({
-      statusId: StatusId.Active,
-      url: authorURL,
-    });
+          await PostTermService.updateViewWithId({
+            _id: category._id,
+            typeId: category.typeId,
+            postTypeId: category.postTypeId,
+            langId: appState.selectedLangId,
+            url: EndPoints.BLOGS_WITH.CATEGORY(categoryURL),
+          });
+        }
+      }
 
-    if (serviceResultAuthor.status && serviceResultAuthor.data) {
-      req.pageData.author = serviceResultAuthor.data;
-      authorId = serviceResultAuthor.data._id;
-    }
-  }
+      let authorId = '';
+      if (authorURL) {
+        const serviceResultAuthor = await UserService.getWithURL({
+          statusId: StatusId.Active,
+          url: authorURL,
+        });
 
-  await PageSSRUtil.init({
-    req: req,
-    url: 'blogs',
-    typeId: PageTypeId.Blogs,
-    increaseView: true,
-  });
+        if (serviceResultAuthor.status && serviceResultAuthor.data) {
+          let author = serviceResultAuthor.data;
+          queries.author = author;
+          authorId = author._id;
+        }
+      }
 
-  if (req.pageData.page && req.pageData.page.pageTypeId == PageTypeId.Blogs) {
-    req.pageData.blogs = (
-      await PostService.getMany({
-        langId: req.appData.selectedLangId,
+      let serviceResultBlogs = await PostService.getMany({
+        langId: appState.selectedLangId,
         typeId: [PostTypeId.Blog],
         statusId: StatusId.Active,
         count: perPageBlogCount,
@@ -239,21 +250,28 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         ...(search ? { title: search } : {}),
         ...(categoryId ? { categories: [categoryId] } : {}),
         ...(authorId ? { authorId: authorId } : {}),
-      })
-    ).data;
+      });
 
-    req.pageData.maxBlogCount = (
-      await PostService.getCount({
+      if (serviceResultBlogs.status && serviceResultBlogs.data) {
+        let blogs = serviceResultBlogs.data;
+        queries.blogs = blogs;
+      }
+
+      let serviceResultMaxBlogCount = await PostService.getCount({
         typeId: PostTypeId.Blog,
         statusId: StatusId.Active,
         ...(search ? { title: search } : {}),
         ...(categoryId ? { categories: [categoryId] } : {}),
         ...(authorId ? { authorId: authorId } : {}),
-      })
-    ).data;
-  }
+      });
 
-  return {
-    props: PageSSRUtil.getProps(req),
-  };
-}
+      if (serviceResultMaxBlogCount.status && serviceResultMaxBlogCount.data) {
+        queries.maxBlogCount = serviceResultMaxBlogCount.data;
+      }
+    }
+
+    return {
+      props: {},
+    };
+  }
+);
