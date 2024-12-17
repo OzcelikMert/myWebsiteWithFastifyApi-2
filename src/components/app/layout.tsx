@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, JSX } from 'react';
 import ProviderNoFound from '@components/providers/noFound';
 import ComponentHead from '@components/head';
 import ComponentThemeSubscribe from '@components/theme/subscribe';

@@ -7,9 +7,6 @@ import { wrapper } from '@lib/store';
 import { useAppSelector } from '@lib/hooks';
 
 export default function PageHome() {
-  console.log("******PageHome*******", useAppSelector(state => state.pageState));
-  
-
   return (
     <ComponentAppLayout>
       <div className="page page-home">
@@ -21,7 +18,7 @@ export default function PageHome() {
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (context) => {
-    const req = context.req;
+    const req = context.req!;
 
     await PageSSRUtil.init(store, {
       req: req,
@@ -30,10 +27,8 @@ export const getServerSideProps = wrapper.getServerSideProps(
       increaseView: true,
     });
 
-    console.log("******PageHome getServerSideProps*******", store.getState().pageState.page);
-
     return {
-      props: {},
+      props: {}
     };
   }
 );

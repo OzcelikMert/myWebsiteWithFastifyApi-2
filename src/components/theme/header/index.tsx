@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { PageTypeId } from '@constants/pageTypes';
 import { ImageSourceUtil } from '@utils/imageSource.util';
 import { useAppSelector } from '@lib/hooks';
 import { HelperUtil } from '@utils/helper.util';
-import { IAppState } from '@lib/features/appSlice';
-import { IPageState } from '@lib/features/pageSlice';
 
 type IComponentProps = {
   component: IComponentGetResultService;
@@ -22,7 +20,8 @@ export default function ComponentThemeHeader({
   buttons,
   content,
 }: IComponentProps) {
-  const { pageState, appState } = useAppSelector((state) => state);
+  const appState = useAppSelector((state) => state.appState);
+  const pageState = useAppSelector((state) => state.pageState);
 
   const isHomePage = pageState.page?.pageTypeId == PageTypeId.Home;
   const bgImage = backgroundImage || pageState.page?.contents?.image;

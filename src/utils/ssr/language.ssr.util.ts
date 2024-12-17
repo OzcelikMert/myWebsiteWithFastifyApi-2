@@ -6,7 +6,7 @@ import { UrlUtil } from '@utils/url.util';
 import { IncomingMessage, ServerResponse } from 'http';
 import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
 import { IAppStore } from '@lib/store';
-import { setDefaultLangIdState, setSelectedLangCodeState, setSelectedLangIdState } from '@lib/features/appSlice';
+import { setDefaultLangIdState, setLanguagesState, setSelectedLangCodeState, setSelectedLangIdState } from '@lib/features/appSlice';
 
 const init = async (
   store: IAppStore,
@@ -24,6 +24,7 @@ const init = async (
     true
   );
   if (foundDefaultLanguage) {
+    store.dispatch(setLanguagesState(languages));
     store.dispatch(setDefaultLangIdState(foundDefaultLanguage._id));
     store.dispatch(setSelectedLangIdState(foundDefaultLanguage._id));
     store.dispatch(setSelectedLangCodeState(LanguageUtil.getCode(foundDefaultLanguage)));

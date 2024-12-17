@@ -7,7 +7,11 @@ import { ComponentService } from '@services/component.service';
 import { ComponentTypeId } from '@constants/componentTypes';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { IAppStore } from '@lib/store';
-import { setPageState, setPrivateComponentsState, setPublicComponentsState } from '@lib/features/pageSlice';
+import {
+  setPageState,
+  setPrivateComponentsState,
+  setPublicComponentsState,
+} from '@lib/features/pageSlice';
 
 const init = async (store: IAppStore, params: IPageGetParamUtil) => {
   const { appState } = store.getState();
@@ -21,7 +25,7 @@ const init = async (store: IAppStore, params: IPageGetParamUtil) => {
   });
 
   if (serviceResultPage.status && serviceResultPage.data) {
-    store.dispatch(setPageState(serviceResultPage.data))
+    store.dispatch(setPageState(serviceResultPage.data));
 
     if (params.increaseView) {
       await PostService.updateViewWithId({
@@ -41,7 +45,10 @@ const init = async (store: IAppStore, params: IPageGetParamUtil) => {
   }
 };
 
-const initPrivateComponents = async (store: IAppStore, req: IncomingMessage) => {
+const initPrivateComponents = async (
+  store: IAppStore,
+  req: IncomingMessage
+) => {
   const { appState, pageState } = store.getState();
 
   if (pageState.page && pageState.page.components) {
@@ -55,14 +62,13 @@ const initPrivateComponents = async (store: IAppStore, req: IncomingMessage) => 
 
     if (serviceResult.status && serviceResult.data) {
       await initComponentSSRProps(store, req, serviceResult.data);
-      store.dispatch(setPrivateComponentsState(serviceResult.data))
+      store.dispatch(setPrivateComponentsState(serviceResult.data));
     }
   }
 };
 
-
 const initPublicComponents = async (store: IAppStore, req: IncomingMessage) => {
-  const { appState } = store.getState();
+  const { appState, pageState } = store.getState();
 
   const serviceResult = await ComponentService.getMany({
     langId: appState.selectedLangId,
@@ -72,7 +78,7 @@ const initPublicComponents = async (store: IAppStore, req: IncomingMessage) => {
 
   if (serviceResult.status && serviceResult.data) {
     await initComponentSSRProps(store, req, serviceResult.data);
-    store.dispatch(setPublicComponentsState(serviceResult.data))
+    store.dispatch(setPublicComponentsState(serviceResult.data));
   }
 };
 
@@ -83,8 +89,9 @@ const initComponentSSRProps = async (
 ) => {
   for (const component of components ?? []) {
     try {
-      const componentClass = (await import(`components/theme/${component.key}`))
-        .default as any;
+      const componentClass = (
+        await import(`@components/theme/${component.key}`)
+      ).default as any;
       if (componentClass.componentServerSideProps) {
         await componentClass.componentServerSideProps(store, req, component);
       }
