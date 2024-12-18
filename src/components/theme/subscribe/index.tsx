@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
@@ -7,10 +7,18 @@ import { SubscriberService } from '@services/subscriber.service';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { VariableLibrary } from '@library/variable';
 import { HelperUtil } from '@utils/helper.util';
+import { useFormReducer } from '@library/react/handles/form';
 
 type IComponentState = {
   isSubscribed: boolean;
+};
+
+type IComponentFormState = {
   email: string;
+};
+
+const initialFormState = {
+  email: '',
 };
 
 type IComponentProps = {
@@ -22,7 +30,7 @@ export default function ComponentThemeSubscribe({
 }: IComponentProps) {
   const [isSubscribed, setIsSubscribed] =
     useState<IComponentState['isSubscribed']>(false);
-  const [email, setEmail] = useState<IComponentState['email']>('');
+  const { formState, onChangeInput } = useFormReducer(initialFormState);
 
   let componentElementContents =
     HelperUtil.getComponentElementContents(component);
@@ -30,12 +38,15 @@ export default function ComponentThemeSubscribe({
   const onClickSubscribe = async () => {
     const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 
-    if (VariableLibrary.isEmpty(email) || !email.match(isValidEmail)) {
+    if (
+      VariableLibrary.isEmpty(formState.email) ||
+      !formState.email.match(isValidEmail)
+    ) {
       return null;
     }
 
     const serviceResult = await SubscriberService.add({
-      email: email,
+      email: formState.email,
     });
 
     setIsSubscribed(true);
@@ -47,7 +58,7 @@ export default function ComponentThemeSubscribe({
         <h5 className="animate__animated animate__fadeInUp">
           {componentElementContents(
             'subscribeSuccessMessageWithVariable'
-          )?.content?.replace('{{subscriberEmail}}', email)}
+          )?.content?.replace('{{subscriberEmail}}', formState.email)}
         </h5>
       </div>
     );
@@ -55,35 +66,28 @@ export default function ComponentThemeSubscribe({
 
   const Subscribe = () => {
     return (
-      <AnimationOnScroll
-        animateIn="animate__fadeInUp"
-        delay={400}
-        animateOnce={true}
-        animatePreScroll={false}
-      >
-        <div className="subscribe row mt-3 text-center justify-content-center">
-          <div className="col-md-10">
-            <input
-              type="email"
-              className="form-control"
-              placeholder="email@email.com"
-              value={email}
-              name="email"
-              onChange={(event) => setEmail(event.target.value)}
-            />
-            <div className="form-text text-light">
-              {componentElementContents('weWillNeverShareYourEmail')?.content}
-            </div>
-          </div>
-          <div className="col-md-8 mt-2">
-            <ComponentLoadingButton
-              text={componentElementContents('buttonText')?.content}
-              className="btn btn-warning"
-              onClick={() => onClickSubscribe()}
-            />
+      <div className="subscribe row mt-3 text-center justify-content-center">
+        <div className="col-md-10">
+          <input
+            type="email"
+            className="form-control"
+            placeholder="email@email.com"
+            value={formState.email}
+            name="email"
+            onChange={(event) => onChangeInput(event)}
+          />
+          <div className="form-text text-light">
+            {componentElementContents('weWillNeverShareYourEmail')?.content}
           </div>
         </div>
-      </AnimationOnScroll>
+        <div className="col-md-8 mt-2">
+          <ComponentLoadingButton
+            text={componentElementContents('buttonText')?.content}
+            className="btn btn-warning"
+            onClick={() => onClickSubscribe()}
+          />
+        </div>
+      </div>
     );
   };
 
@@ -207,7 +211,14 @@ export default function ComponentThemeSubscribe({
                       {componentElementContents('describe')?.content}
                     </p>
                   </AnimationOnScroll>
-                  {isSubscribed ? <SubscribeSuccessMessage /> : <Subscribe />}
+                  <AnimationOnScroll
+                    animateIn="animate__fadeInUp"
+                    delay={400}
+                    animateOnce={true}
+                    animatePreScroll={false}
+                  >
+                    {isSubscribed ? <SubscribeSuccessMessage /> : Subscribe()}
+                  </AnimationOnScroll>
                 </div>
               </div>
             </div>

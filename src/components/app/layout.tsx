@@ -46,7 +46,7 @@ export default function ComponentAppLayout({
 
   return (
     <div>
-      <ComponentHead title={pageTitle} />
+      <ComponentHead key={"componentHead"} title={pageTitle} />
       {navbarComponent ? (
         <ComponentThemeNavbar component={navbarComponent} />
       ) : null}

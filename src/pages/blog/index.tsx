@@ -19,9 +19,9 @@ import { DateMask } from '@library/variable/date';
 import ComponentBlog from '@components/elements/blog';
 import { useAppSelector } from '@lib/hooks';
 import { wrapper } from '@lib/store';
-import { setPageState } from '@lib/features/pageSlice';
-import { translation } from '@lib/features/translationSlice';
-import { useSelector } from 'react-redux';
+import { setPageState, setQueriesState } from '@lib/features/pageSlice';
+import { selectTranslation } from '@lib/features/translationSlice';
+import { VariableLibrary } from '@library/variable';
 
 type IPageQueries = {
   blog: IPostGetOneResultService | null;
@@ -32,16 +32,37 @@ type IPageQueries = {
 };
 
 export default function PageBlogURL() {
-  const page = useAppSelector((state) => state.pageState.page);
   const appState = useAppSelector((state) => state.appState);
   const queries = useAppSelector(
     (state) => state.pageState.queries as IPageQueries
   );
-  const t = useSelector(translation);
+  const t = useAppSelector(selectTranslation);
 
   const blog = queries.blog;
   const prevBlog = queries.prevBlog;
   const nextBlog = queries.nextBlog;
+
+  const onClickShare = async () => {
+    navigator.share({
+      title: typeof window != 'undefined' ? window.document.title : "",
+      text: blog?.contents?.shortContent,
+      url: typeof window != 'undefined' ? window.location.href : ""
+    });
+  }
+
+  const HeaderBottom = () => {
+    return (
+      <div className='align-center fs-5'>
+        <span className='text-light mt-1 mx-4'>
+          {queries.blog?.views || 1}{' '}
+          <i className="text-primary mdi mdi-eye fs-4"></i>
+        </span>
+        <span className='text-light mt-1 mx-4' role="button" onClick={() => onClickShare()}>
+          <i className="text-warning mdi mdi-share-variant fs-4"></i>
+        </span>
+      </div>
+    );
+  }
 
   const Author = (props: IUserPopulateService, index: number) => {
     const date = new Date(blog?.createdAt ?? '');
@@ -228,6 +249,7 @@ export default function PageBlogURL() {
       pageTitle={`${t('blog')} - ${blog?.contents?.title || queries.url}`}
       headerBgImage={blog?.contents?.image}
       headerContent={blog?.contents?.shortContent}
+      headerButtons={HeaderBottom()}
     >
       <div className="page page-blog">
         <section className="blog-section">
@@ -285,65 +307,68 @@ export const getServerSideProps = wrapper.getServerSideProps(
       url: '',
     };
 
-    const url = (context.params?.url as string) || '';
-    queries.url = decodeURI(url);
+    const url = decodeURI((context.query?.url as string) || '');
+    queries.url = url;
 
-    const serviceResultBlog = await PostService.getWithURL({
-      typeId: PostTypeId.Blog,
-      url: url,
-      langId: appState.selectedLangId,
-      statusId: StatusId.Active,
-    });
-
-    if (serviceResultBlog.status && serviceResultBlog.data) {
-      const blog = serviceResultBlog.data;
-
-      await PostService.updateViewWithId({
-        _id: blog._id,
-        typeId: blog.typeId,
-        langId: appState.selectedLangId,
+    if(!VariableLibrary.isEmpty(url)){
+      const serviceResultBlog = await PostService.getWithURL({
+        typeId: PostTypeId.Blog,
         url: url,
-      });
-
-      queries.blog = blog;
-
-      const serviceResultBlogPrevNext = await PostService.getPrevNextWithId({
-        _id: blog._id,
-        typeId: blog.typeId,
         langId: appState.selectedLangId,
         statusId: StatusId.Active,
       });
+      
+      if (serviceResultBlog.status && serviceResultBlog.data) {
+        const blog = serviceResultBlog.data;
+  
+        await PostService.updateViewWithId({
+          _id: blog._id,
+          typeId: blog.typeId,
+          langId: appState.selectedLangId,
+          url: url,
+        });
+  
+        queries.blog = blog;
+  
+        const serviceResultBlogPrevNext = await PostService.getPrevNextWithId({
+          _id: blog._id,
+          typeId: blog.typeId,
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+        });
+  
+        if (serviceResultBlogPrevNext.status && serviceResultBlogPrevNext.data) {
+          queries.prevBlog = serviceResultBlogPrevNext.data.prev || null;
+          queries.nextBlog = serviceResultBlogPrevNext.data.next || null;
+        }
+  
+        const serviceResultBlogsMightLike = await PostService.getMany({
+          typeId: [blog.typeId],
+          categories: blog.categories?.map((category) => category._id),
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+          count: 3,
+          ignorePostId: [
+            blog._id,
+            ...(serviceResultBlogPrevNext.data?.next
+              ? [serviceResultBlogPrevNext.data.next._id]
+              : []),
+            ...(serviceResultBlogPrevNext.data?.prev
+              ? [serviceResultBlogPrevNext.data.prev._id]
+              : []),
+          ],
+        });
+  
+        if (
+          serviceResultBlogsMightLike.status &&
+          serviceResultBlogsMightLike.data
+        ) {
+          queries.blogsMightLike = serviceResultBlogsMightLike.data;
+        }
 
-      if (serviceResultBlogPrevNext.status && serviceResultBlogPrevNext.data) {
-        queries.prevBlog = serviceResultBlogPrevNext.data.prev || null;
-        queries.nextBlog = serviceResultBlogPrevNext.data.next || null;
-      }
-
-      const serviceResultBlogsMightLike = await PostService.getMany({
-        typeId: [blog.typeId],
-        categories: blog.categories?.map((category) => category._id),
-        langId: appState.selectedLangId,
-        statusId: StatusId.Active,
-        count: 3,
-        ignorePostId: [
-          blog._id,
-          ...(serviceResultBlogPrevNext.data?.next
-            ? [serviceResultBlogPrevNext.data.next._id]
-            : []),
-          ...(serviceResultBlogPrevNext.data?.prev
-            ? [serviceResultBlogPrevNext.data.prev._id]
-            : []),
-        ],
-      });
-
-      if (
-        serviceResultBlogsMightLike.status &&
-        serviceResultBlogsMightLike.data
-      ) {
-        queries.blogsMightLike = serviceResultBlogsMightLike.data;
-      }
-
-      store.dispatch(setPageState(blog));
+        store.dispatch(setQueriesState(queries));
+        store.dispatch(setPageState(blog));
+      } 
     }
 
     return {

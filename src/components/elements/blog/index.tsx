@@ -8,8 +8,7 @@ import { UrlUtil } from '@utils/url.util';
 import { EndPoints } from '@constants/endPoints';
 import { DateMask } from '@library/variable/date';
 import { useAppSelector } from '@lib/hooks';
-import { translation } from '@lib/features/translationSlice';
-import { useSelector } from 'react-redux';
+import { selectTranslation } from '@lib/features/translationSlice';
 
 type IComponentProps = {
   item: IPostGetManyResultService;
@@ -37,7 +36,7 @@ export default function ComponentBlog({
   index,
 }: IComponentProps) {
   let url = useAppSelector((state) => state.appState.url);
-  let t = useSelector(translation);
+  let t = useAppSelector(selectTranslation);
 
   const Authors = (props: IUserPopulateService[], createdAt: string) => {
     const date = new Date(createdAt);

@@ -17,9 +17,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const appState = store.getState().appState;
 
-    const typeName = (context.params?.typeName as string) ?? '';
+    const typeName = (context.query?.typeName as string) ?? '';
     const typeId = PostUtil.getTypeId(typeName.toCapitalizeCase());
-    const page = Number(context.params?.page ?? 1);
+    const page = Number(context.query?.page ?? 1);
 
     const serviceResult = await SitemapService.getPost({
       typeId: typeId,

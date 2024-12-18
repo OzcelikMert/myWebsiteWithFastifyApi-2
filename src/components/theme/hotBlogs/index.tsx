@@ -54,6 +54,7 @@ function ComponentThemeHotBlogs({ component }: IComponentProps) {
                 animatePreScroll={false}
               >
                 <ComponentBlog
+                  key={`hotBlog_${item._id}`}
                   item={item}
                   index={0}
                   imageWidth={1000}
@@ -87,6 +88,7 @@ function ComponentThemeHotBlogs({ component }: IComponentProps) {
             <div className="row">
               {items?.map((item, index) => (
                 <AnimationOnScroll
+                  key={`hotBlogsAnimationOnScroll_${item._id}`}
                   animateIn="animate__fadeInRight"
                   delay={(index + 1) * 100}
                   animateOnce={true}
@@ -94,6 +96,7 @@ function ComponentThemeHotBlogs({ component }: IComponentProps) {
                   animatePreScroll={false}
                 >
                   <ComponentBlog
+                    key={`hotBlogs_${item._id}`}
                     item={item}
                     index={index}
                     hideAuthorImage={true}

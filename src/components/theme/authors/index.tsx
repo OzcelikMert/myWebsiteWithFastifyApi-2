@@ -19,7 +19,7 @@ function ComponentThemeAuthors({ component }: IComponentProps) {
 
   const Author = (item: IUserGetResultService, index: number) => {
     return (
-      <div key={item._id} className="card-wrapper">
+      <div key={`author_${item._id}`} className="card-wrapper">
         <div className="card">
           <div className="card-image">
             <Image

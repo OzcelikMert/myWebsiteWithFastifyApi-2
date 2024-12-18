@@ -48,18 +48,19 @@ export default function ComponentThemeHeader({
   };
 
   const PageContent = () => {
+    let delay = 0;
     return (
       <div className="content">
         <h2 className="animate__animated animate__fadeInDown animate__fast">
           {title || pageState.page?.contents?.title}
         </h2>
-        {content ? (
-          <p className="animate__animated animate__fadeInDown animate__delay-1s">
+        {content ? (++delay) && (
+          <p className={`animate__animated animate__fadeInDown animate__delay-${delay}s`}>
             {content}
           </p>
         ) : null}
-        {buttons ? (
-          <div className="buttons mt-3 animate__animated animate__fadeInDown animate__delay-2s">
+        {buttons ? (++delay) && (
+          <div className={`buttons mt-3 animate__animated animate__fadeInDown animate__delay-${delay}s`}>
             {buttons}
           </div>
         ) : null}

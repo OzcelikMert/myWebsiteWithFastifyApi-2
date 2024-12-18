@@ -10,8 +10,7 @@ import { IComponentGetResultService } from 'types/services/component.service';
 import { IFuncComponentServerSideProps } from 'types/components/ssr';
 import { useAppSelector } from '@lib/hooks';
 import { HelperUtil } from '@utils/helper.util';
-import { useSelector } from 'react-redux';
-import { translation } from '@lib/features/translationSlice';
+import { selectTranslation } from '@lib/features/translationSlice';
 
 type IComponentState = {
   lastBlogs: IPostGetManyResultService[];
@@ -41,7 +40,7 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
     (state) => state.appState.selectedLangId
   );
 
-  const t = useSelector(translation);
+  const t = useAppSelector(selectTranslation);
 
   let componentElementContents =
     HelperUtil.getComponentElementContents(component);
@@ -50,18 +49,20 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
 
   const onClickShowMore = async () => {
     if (!isActiveShowMoreButton) return false;
-    setPageNumber((state) => state + 1);
+    const newPageNumber = pageNumber + 1;
     const serviceResult = await PostService.getMany({
       langId: selectedLangId,
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: perPageBlogCount,
-      page: pageNumber,
+      page: newPageNumber
     });
     if (serviceResult.status && serviceResult.data) {
-      setLastBlogs((state) => [...state, ...(serviceResult.data ?? [])]);
+      setPageNumber(newPageNumber);
+      const newBlogs = [...lastBlogs, ...(serviceResult.data ?? [])];
+      setLastBlogs(newBlogs);
       setIsActiveShowMoreButton(
-        (component.customData?.maxBlogCount ?? 0) > lastBlogs.length
+        (component.customData?.maxBlogCount || 0) > newBlogs.length
       );
     }
   };
@@ -98,6 +99,7 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
             <div className="row">
               {lastBlogs.map((item, index) => (
                 <MemoizedComponentBlog
+                  key={`lastBlogs_${item._id}`}
                   className={`col-md-4 mt-4 mt-md-0`}
                   item={item}
                   index={index}

@@ -4,6 +4,7 @@ declare global {
       API_PROTOCOL: "http" | "https";
       API_HOST: string;
       API_PORT: string;
+      RUN_TYPE: "dev" | "production";
     }
   }
 }

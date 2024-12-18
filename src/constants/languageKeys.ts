@@ -10,4 +10,7 @@ export const LanguageKey = [
   'blogsYouMightLike',
   'subscribeSuccessMessageWithVariable',
   'weWillNeverShareYourEmail',
+  'category',
+  'author',
+  'search'
 ] as const;

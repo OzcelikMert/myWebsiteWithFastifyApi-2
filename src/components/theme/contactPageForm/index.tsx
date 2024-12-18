@@ -84,7 +84,7 @@ export default function ComponentThemeContactPageForm({
             <Form.Control
               type="text"
               placeholder={componentElementContents('fullNameInput')?.content}
-              name="formData.name"
+              name="name"
               value={formState.name}
               onChange={(e) => onChangeInput(e)}
               required
@@ -97,7 +97,7 @@ export default function ComponentThemeContactPageForm({
             <Form.Control
               type="email"
               placeholder={componentElementContents('emailInput')?.content}
-              name="formData.email"
+              name="email"
               value={formState.email}
               onChange={(e) => onChangeInput(e)}
               required
@@ -113,7 +113,7 @@ export default function ComponentThemeContactPageForm({
             <Form.Control
               type="text"
               placeholder={componentElementContents('subjectInput')?.content}
-              name="formData.subject"
+              name="subject"
               value={formState.subject}
               onChange={(e) => onChangeInput(e)}
               required
@@ -127,7 +127,7 @@ export default function ComponentThemeContactPageForm({
               as="textarea"
               rows={5}
               placeholder={componentElementContents('messageInput')?.content}
-              name="formData.message"
+              name="message"
               value={formState.message}
               onChange={(e) => onChangeInput(e)}
               required

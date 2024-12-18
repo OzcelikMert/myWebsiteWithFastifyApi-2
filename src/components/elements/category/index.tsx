@@ -27,7 +27,7 @@ export default function ComponentCategory({item, index, isSelected, onMouseOver}
   });
   return (
     <div
-      key={item._id}
+      key={`category_${item._id}`}
       className={`option ${isSelected ? 'active' : ''}`}
       onMouseOver={(event) => handleMouseOver()}
     >

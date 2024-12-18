@@ -53,8 +53,9 @@
 @import "components/theme/hero";
 @import "components/theme/hotBlogs";
 @import "components/theme/hotCategories";
-@import "components/error/404";
-@import "components/tools/navbar";
-@import "components/tools/header";
-@import "components/tools/subscribe";
-@import "components/tools/footer";
+@import "components/theme/navbar";
+@import "components/theme/header";
+@import "components/theme/subscribe";
+@import "components/theme/footer";
+@import "components/theme/footer";
+@import "components/elements/button/searchButton.scss";

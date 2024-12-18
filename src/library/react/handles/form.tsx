@@ -29,11 +29,16 @@ function setDataWithKeys(
 }
 
 type IAction =
+  | { type: 'SET_STATE'; value: any }
   | { type: 'UPDATE_FIELD'; name: string; value: any }
   | { type: 'UPDATE_SELECT'; name: string; value: any };
 
 function formReducer(state: any, action: IAction): any {
   switch (action.type) {
+    case 'SET_STATE': {
+      const { value } = action;
+      return Object.assign(state, value);
+    }
     case 'UPDATE_FIELD': {
       const { name, value } = action;
       return setDataWithKeys({ ...state }, name.split('.'), value);
@@ -58,7 +63,12 @@ function formReducer(state: any, action: IAction): any {
   }
 }
 
-export function useFormReducer<T>(initialState: T) {
+export function useFormReducer<T>(initialState: T): {
+  formState: T;
+  setFormState: (state: Partial<T>) => void;
+  onChangeInput: (event: React.ChangeEvent<any>) => void;
+  onChangeSelect: (name: string, value: any) => any;
+} {
   const [formState, dispatch] = React.useReducer(formReducer, initialState);
 
   const onChangeInput = (event: React.ChangeEvent<any>) => {
@@ -77,5 +87,9 @@ export function useFormReducer<T>(initialState: T) {
     dispatch({ type: 'UPDATE_SELECT', name, value });
   };
 
-  return { formState, onChangeInput, onChangeSelect };
+  const setFormState = (state: Partial<T>) => {
+    dispatch({ type: 'SET_STATE', value: state });
+  }
+
+  return { formState, setFormState, onChangeInput, onChangeSelect };
 }

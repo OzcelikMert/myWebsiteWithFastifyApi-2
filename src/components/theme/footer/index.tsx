@@ -42,6 +42,7 @@ function ComponentThemeFooter({ component }: IComponentProps) {
         <span>
           {appState.languages.map((language, index) => (
             <a
+              key={`footer_language_${language._id}`}
               href={
                 language._id == appState.selectedLangId
                   ? '#'
@@ -124,7 +125,7 @@ function ComponentThemeFooter({ component }: IComponentProps) {
           <h4>{componentElementContents('pagesTitle')?.content}</h4>
           <ul>
             {component.customData?.navigations?.map((navigation) => (
-              <li>
+              <li key={`footer_navigation_${navigation._id}`}>
                 <a href={navigation.contents?.url}>
                   <span>{navigation.contents?.title}</span>
                 </a>
@@ -136,7 +137,7 @@ function ComponentThemeFooter({ component }: IComponentProps) {
           <h4>{componentElementContents('hotBlogsTitle')?.content}</h4>
           <ul>
             {component.customData?.hotBlogs?.map((blog) => (
-              <li>
+              <li key={`footer_hotBlog_${blog._id}`}>
                 <a href={blog.contents?.url}>
                   <span>{blog.contents?.title}</span>
                 </a>
@@ -148,7 +149,7 @@ function ComponentThemeFooter({ component }: IComponentProps) {
           <h4>{componentElementContents('hitBlogsTitle')?.content}</h4>
           <ul>
             {component.customData?.hitBlogs?.map((blog) => (
-              <li>
+              <li key={`footer_hitBlog_${blog._id}`}>
                 <a href={blog.contents?.url}>
                   <span>{blog.contents?.title}</span>
                 </a>

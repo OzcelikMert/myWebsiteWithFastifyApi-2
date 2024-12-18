@@ -32,11 +32,16 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
 
   useEffect(() => {
     setEvents();
-  });
+    return () => removeEvents();
+  }, [isNavbarSticky]);
 
   const setEvents = () => {
-    window.addEventListener('scroll', () => onScrolling());
+    window.addEventListener('scroll', onScrolling);
   };
+
+  const removeEvents = () => {
+    window.removeEventListener('scroll', onScrolling);
+  }
 
   const onScrolling = () => {
     if (window.scrollY > window.frames.innerHeight) {
@@ -117,6 +122,17 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
     );
   };
 
+  const LoginButton = () => {
+    return (
+      <a
+        className="btn btn-warning login-btn"
+        href="http://localhost:3001/login"
+      >
+        {componentElementContents('buttonText')?.content}
+      </a>
+    );
+  };
+
   return (
     <div
       className={`navbar-section ${isNavbarSticky ? 'scroll-on' : 'start-style'}`}
@@ -141,12 +157,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
                 NavItem(navigation, index)
               )}
             </Nav>
-            <a
-              className="btn btn-warning login-btn"
-              href="http://localhost:3001/login"
-            >
-              {componentElementContents('buttonText')?.content}
-            </a>
+            <LoginButton />
           </Navbar.Collapse>
         </Navbar>
       </div>

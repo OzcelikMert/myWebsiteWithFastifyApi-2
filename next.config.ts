@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     API_PROTOCOL: process.env.API_PROTOCOL,
     API_HOST: process.env.API_HOST,
     ...(process.env.API_PORT ? { API_PORT: process.env.API_PORT } : {}),
+    RUN_TYPE: process.env.RUN_TYPE,
   },
   reactStrictMode: true,
   swcMinify: true,

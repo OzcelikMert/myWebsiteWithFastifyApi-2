@@ -42,6 +42,7 @@ function ComponentThemeCategories({ component }: IComponentProps) {
           <div className="options">
             {component.customData?.categories?.map((category, index) => (
               <ComponentCategory
+                key={`categories_${category._id}`}
                 item={category}
                 index={index}
                 onMouseOver={(item) => onMouseOver(item)}
