@@ -1,7 +1,5 @@
-import { IRootState } from '@lib/store';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import { AppProps } from 'next/app';
 import { ILanguageGetResultService } from 'types/services/language.service';
 import { ISettingGetResultService } from 'types/services/setting.service';
 

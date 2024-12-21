@@ -46,7 +46,7 @@ export default function ComponentThemeSelectedComponents({}: IComponentProps) {
         element = <ComponentClass component={component} key={`selectedComponent_${component._id}`} />;
       }
     } catch (e) {
-      console.log(e);
+      console.error("ComponentThemeSelectedComponents", e);
     }
 
     return element;

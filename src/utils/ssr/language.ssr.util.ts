@@ -13,7 +13,6 @@ const init = async (
   req: IncomingMessage,
   res: ServerResponse<IncomingMessage>
 ) => {
-  const {pageState, appState} = store.getState();
   // Get all languages
   const languages =
     (await LanguageService.getMany({ statusId: StatusId.Active })).data ?? [];
@@ -28,12 +27,12 @@ const init = async (
     store.dispatch(setDefaultLangIdState(foundDefaultLanguage._id));
     store.dispatch(setSelectedLangIdState(foundDefaultLanguage._id));
     store.dispatch(setSelectedLangCodeState(LanguageUtil.getCode(foundDefaultLanguage)));
-
+    const {pageState, appState} = store.getState();
     if (!pageState.isSitemap) {
       // Check is there a cookie lang code
-      if (appState.cookies.langCode) {
+      if (req.cookies.langCode) {
         // Check cookie lang code and default lang code are same
-        if (appState.selectedLangCode == appState.cookies.langCode) {
+        if (appState.selectedLangCode == req.cookies.langCode) {
           CookieSSRUtil.deleteLangId(req, res);
           UrlSSRUtil.move(
             res,
@@ -45,7 +44,7 @@ const init = async (
           return false;
         } else {
           // Find cookie lang code
-          const langKeys = appState.cookies.langCode?.split('-') || ["", ""];
+          const langKeys = req.cookies.langCode?.split('-') || ["", ""];
           const foundCookieLanguagesWithKey = appState.languages.findMulti(
             'shortKey',
             langKeys[0]
@@ -54,9 +53,9 @@ const init = async (
             foundCookieLanguagesWithKey.findSingle('locale', langKeys[1]);
           // Check lang code is correct
           if (foundCookieLanguageWithLocale) {
-            appState.selectedLangId = foundCookieLanguageWithLocale._id;
-            appState.selectedLangCode = appState.cookies.langCode ?? "";
-            if (appState.cookies.langId != appState.selectedLangId) {
+            store.dispatch(setSelectedLangCodeState(req.cookies.langCode ?? ""));
+            store.dispatch(setSelectedLangIdState(foundCookieLanguageWithLocale._id));
+            if (req.cookies.langId != foundCookieLanguageWithLocale._id) {
               CookieSSRUtil.setLangId(store, req, res);
             }
           } else {
@@ -73,12 +72,12 @@ const init = async (
       } else {
         // Check there is a cookie lang id and check it is same with default lang id
         if (
-          appState.cookies.langId &&
-          appState.cookies.langId != appState.selectedLangId
+          req.cookies.langId &&
+          req.cookies.langId != appState.selectedLangId
         ) {
           const foundCookieLanguageWithId = appState.languages.findSingle(
             '_id',
-            appState.cookies.langId
+            req.cookies.langId
           );
           if (foundCookieLanguageWithId) {
             UrlSSRUtil.move(

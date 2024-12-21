@@ -14,7 +14,11 @@ import { SettingService } from '@services/setting.service';
 import { LanguageSSRUtil } from '@utils/ssr/language.ssr.util';
 import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
 import { wrapper } from '@lib/store';
-import { setSettingsState, setURLState } from '@lib/features/appSlice';
+import {
+  setCookiesState,
+  setSettingsState,
+  setURLState,
+} from '@lib/features/appSlice';
 import { setIsSitemapState } from '@lib/features/pageSlice';
 import App from 'next/app';
 import { ComponentKey } from '@constants/componentKeys';
@@ -31,25 +35,15 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
   if (typeof window === 'undefined' && req && res) {
     const url = UrlSSRUtil.get(req);
     store.dispatch(setURLState(url));
-    console.log(url);
+    console.log("MyApp.getInitialProps", url);
 
     const isSitemap =
       url.asPath.includes('/sitemap.xml') || url.asPath.includes('/sitemaps/');
 
     store.dispatch(setIsSitemapState(isSitemap));
 
-    if (!isSitemap) {
-      await PageSSRUtil.initPublicComponents(store, req);
-      // Set public words for t function
-      const publicComponents = store.getState().pageState.publicComponents;
-      const componentStaticContents = publicComponents.findSingle(
-        'key',
-        ComponentKey.StaticContents
-      );
-
-      if (componentStaticContents) {
-        store.dispatch(setTranslationState(componentStaticContents));
-      }
+    if (req.cookies) {
+      store.dispatch(setCookiesState(req.cookies));
     }
 
     const isLangInit = await LanguageSSRUtil.init(store, req, res);
@@ -57,14 +51,26 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
       return {
         pageProps: {},
       };
+    } else {
+      if (!isSitemap) {
+        await PageSSRUtil.initPublicComponents(store, req);
+        // Set public words for t function
+        const publicComponents = store.getState().pageState.publicComponents;
+        const componentStaticContents = publicComponents.findSingle(
+          'key',
+          ComponentKey.StaticContents
+        );
+
+        if (componentStaticContents) {
+          store.dispatch(setTranslationState(componentStaticContents));
+        }
+      }
     }
 
     const appState = store.getState().appState;
-
     const serviceResultSettings = await SettingService.get({
       langId: appState.selectedLangId,
     });
-
     if (serviceResultSettings.status && serviceResultSettings.data) {
       store.dispatch(setSettingsState(serviceResultSettings.data));
     }

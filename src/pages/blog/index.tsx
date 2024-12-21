@@ -244,12 +244,14 @@ export default function PageBlogURL() {
     );
   };
 
+  let title = blog?.contents?.title || "404";
+
   return (
     <ComponentAppLayout
-      pageTitle={`${t('blog')} - ${blog?.contents?.title || queries.url}`}
+      pageTitle={`${t('blog')} - ${title}`}
       headerBgImage={blog?.contents?.image}
       headerContent={blog?.contents?.shortContent}
-      headerButtons={HeaderBottom()}
+      headerButtons={blog ? HeaderBottom() : undefined}
     >
       <div className="page page-blog">
         <section className="blog-section">

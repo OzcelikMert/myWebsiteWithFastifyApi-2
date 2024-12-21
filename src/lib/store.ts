@@ -32,4 +32,4 @@ export const makeStore = () => configureStore({
 export type IAppStore = ReturnType<typeof makeStore>;
 export type IRootState = ReturnType<IAppStore['getState']>;
 export type IAppDispatch = IAppStore['dispatch'];
-export const wrapper = createWrapper<IAppStore>(makeStore, {debug: true});
+export const wrapper = createWrapper<IAppStore>(makeStore, {debug: process.env.RUN_TYPE !== "production"});
