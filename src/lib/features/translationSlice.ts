@@ -1,5 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ILanguageKey } from 'types/constants/languageKeys';
+import { ILanguageKeys } from 'types/constants/languageKeys';
 import { IComponentGetResultService } from 'types/services/component.service';
 
 export interface ITranslationState {
@@ -26,7 +26,7 @@ const translationSlice = createSlice({
   },
   selectors: {
     translation: (state) => {
-      return (key: ILanguageKey): string => {
+      return (key: ILanguageKeys): string => {
         return state.resources[key] || key;
       }
     }
@@ -44,7 +44,7 @@ export const selectResources = (state: { translationState: ITranslationState }) 
 
 export const selectTranslation = createSelector(
   [selectResources],
-  (resources) => (key: ILanguageKey): string => {
+  (resources) => (key: ILanguageKeys): string => {
     return resources[key] || key;
   }
 );

@@ -1,3 +1,3 @@
-import { LanguageKey } from '@constants/languageKeys';
+import { LanguageKeys } from '@constants/languageKeys';
 
-export type ILanguageKey = (typeof LanguageKey)[number];
+export type ILanguageKeys = (typeof LanguageKeys)[number];
