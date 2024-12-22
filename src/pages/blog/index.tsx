@@ -4,7 +4,7 @@ import { PostTypeId } from '@constants/postTypes';
 import { StatusId } from '@constants/status';
 import {
   IPostGetManyResultService,
-  IPostGetOneResultService,
+  IPostGetResultService,
   IPostGetPrevNextResultService,
 } from 'types/services/post.service';
 import HTMLReactParser from 'html-react-parser';
@@ -24,7 +24,7 @@ import { selectTranslation } from '@lib/features/translationSlice';
 import { VariableLibrary } from '@library/variable';
 
 type IPageQueries = {
-  blog: IPostGetOneResultService | null;
+  blog: IPostGetResultService | null;
   prevBlog: IPostGetPrevNextResultService | null;
   nextBlog: IPostGetPrevNextResultService | null;
   blogsMightLike: IPostGetManyResultService[] | null;

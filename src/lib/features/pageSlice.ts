@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { IPostGetOneResultService } from 'types/services/post.service';
+import { IPostGetResultService } from 'types/services/post.service';
 
 export type IPageState = {
   isSitemap: boolean;
-  page?: IPostGetOneResultService | null;
+  page?: IPostGetResultService | null;
   publicComponents: IComponentGetResultService[];
   privateComponents: IComponentGetResultService[];
   queries: { [key: string]: any };

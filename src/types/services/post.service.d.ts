@@ -18,7 +18,7 @@ export interface IPostAlternateService {
   url?: string;
 }
 
-export type IPostGetOneResultService = {
+export type IPostGetResultService = {
   authorId: IUserPopulateService;
   lastAuthorId: IUserPopulateService;
   authors?: IUserPopulateService[];
@@ -57,7 +57,7 @@ export type IPostGetManyResultService = {
       alternates?: IPostAlternateService[];
     })[];
   };
-} & Omit<IPostGetOneResultService, 'eCommerce'>;
+} & Omit<IPostGetResultService, 'eCommerce'>;
 
 export interface IPostGetPrevNextResultService {
   _id: string;

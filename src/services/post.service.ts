@@ -3,7 +3,7 @@ import {
   IPostGetCountParamService,
   IPostGetManyParamService,
   IPostGetManyResultService,
-  IPostGetOneResultService,
+  IPostGetResultService,
   IPostGetPrevNextParamService,
   IPostGetPrevNextResultService,
   IPostGetWithURLParamService,
@@ -17,7 +17,7 @@ const getWithURL = (params: IPostGetWithURLParamService) => {
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.POST_WITH.GET_WITH_URL(params.url),
     data: params,
-  }).get<IPostGetOneResultService>();
+  }).get<IPostGetResultService>();
 };
 
 const getMany = (params: IPostGetManyParamService) => {
