@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { HYDRATE } from 'next-redux-wrapper';
 import { ILanguageGetResultService } from 'types/services/language.service';
 import { ISettingGetResultService } from 'types/services/setting.service';
 
@@ -75,11 +74,7 @@ const appSlice = createSlice({
     setURLState(state, action: PayloadAction<Partial<IAppState['url']>>) {
       state.url = Object.assign(state.url, action.payload);
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(HYDRATE, (state, action: any) => {({...state, ...action.payload})});
-  },
+  }
 });
 
 export const {
