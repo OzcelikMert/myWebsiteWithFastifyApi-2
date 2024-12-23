@@ -18,18 +18,11 @@ export default function ComponentFeatureIcon({
       <div className="card-body">
         <div className="icon">
           <span>
-            <i
-              style={{ color: color }}
-              className={`mdi mdi-${icon}`}
-            ></i>
+            <i style={{ color: color }} className={`mdi mdi-${icon}`}></i>
           </span>
         </div>
-        <h4 className="card-title">
-          {title}
-        </h4>
-        <p className="card-text">
-          {describe}{' '}
-        </p>
+        <h4 className="card-title">{title}</h4>
+        <p className="card-text">{describe} </p>
       </div>
     </div>
   );

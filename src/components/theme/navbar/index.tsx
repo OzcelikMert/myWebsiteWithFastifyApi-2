@@ -27,7 +27,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
     IComponentState['navbarStatus']
   >({});
   const appState = useAppSelector((state) => state.appState);
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
 
   const removeEvents = () => {
     window.removeEventListener('scroll', onScrolling);
-  }
+  };
 
   const onScrolling = () => {
     if (window.scrollY > window.frames.innerHeight) {

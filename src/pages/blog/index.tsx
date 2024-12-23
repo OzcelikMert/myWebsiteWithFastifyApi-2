@@ -44,25 +44,29 @@ export default function PageBlogURL() {
 
   const onClickShare = async () => {
     navigator.share({
-      title: typeof window != 'undefined' ? window.document.title : "",
+      title: typeof window != 'undefined' ? window.document.title : '',
       text: blog?.contents?.shortContent,
-      url: typeof window != 'undefined' ? window.location.href : ""
+      url: typeof window != 'undefined' ? window.location.href : '',
     });
-  }
+  };
 
   const HeaderBottom = () => {
     return (
-      <div className='align-center fs-5'>
-        <span className='text-light mt-1 mx-4'>
+      <div className="align-center fs-5">
+        <span className="text-light mt-1 mx-4">
           {queries.blog?.views || 1}{' '}
           <i className="text-primary mdi mdi-eye fs-4"></i>
         </span>
-        <span className='text-light mt-1 mx-4' role="button" onClick={() => onClickShare()}>
+        <span
+          className="text-light mt-1 mx-4"
+          role="button"
+          onClick={() => onClickShare()}
+        >
           <i className="text-warning mdi mdi-share-variant fs-4"></i>
         </span>
       </div>
     );
-  }
+  };
 
   const Author = (props: IUserPopulateService, index: number) => {
     const date = new Date(blog?.createdAt ?? '');
@@ -244,7 +248,7 @@ export default function PageBlogURL() {
     );
   };
 
-  let title = blog?.contents?.title || "404";
+  const title = blog?.contents?.title || '404';
 
   return (
     <ComponentAppLayout
@@ -256,9 +260,7 @@ export default function PageBlogURL() {
       <div className="page page-blog">
         <section className="blog-section">
           <div className="container">
-            {
-              blog ? <Blog /> : null
-            }
+            {blog ? <Blog /> : null}
             <div className="prev-next mt-5 blogs">
               <div className="title border-bottom">
                 <h6 className="d-inline-block w-50">{t('previous')}</h6>
@@ -301,7 +303,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const { appState } = store.getState();
 
-    let queries: IPageQueries = {
+    const queries: IPageQueries = {
       blog: null,
       blogsMightLike: null,
       nextBlog: null,
@@ -312,38 +314,41 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const url = decodeURI((context.query?.url as string) || '');
     queries.url = url;
 
-    if(!VariableLibrary.isEmpty(url)){
+    if (!VariableLibrary.isEmpty(url)) {
       const serviceResultBlog = await PostService.getWithURL({
         typeId: PostTypeId.Blog,
         url: url,
         langId: appState.selectedLangId,
         statusId: StatusId.Active,
       });
-      
+
       if (serviceResultBlog.status && serviceResultBlog.data) {
         const blog = serviceResultBlog.data;
-  
+
         await PostService.updateViewWithId({
           _id: blog._id,
           typeId: blog.typeId,
           langId: appState.selectedLangId,
           url: url,
         });
-  
+
         queries.blog = blog;
-  
+
         const serviceResultBlogPrevNext = await PostService.getPrevNextWithId({
           _id: blog._id,
           typeId: blog.typeId,
           langId: appState.selectedLangId,
           statusId: StatusId.Active,
         });
-  
-        if (serviceResultBlogPrevNext.status && serviceResultBlogPrevNext.data) {
+
+        if (
+          serviceResultBlogPrevNext.status &&
+          serviceResultBlogPrevNext.data
+        ) {
           queries.prevBlog = serviceResultBlogPrevNext.data.prev || null;
           queries.nextBlog = serviceResultBlogPrevNext.data.next || null;
         }
-  
+
         const serviceResultBlogsMightLike = await PostService.getMany({
           typeId: [blog.typeId],
           categories: blog.categories?.map((category) => category._id),
@@ -360,7 +365,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
               : []),
           ],
         });
-  
+
         if (
           serviceResultBlogsMightLike.status &&
           serviceResultBlogsMightLike.data
@@ -370,7 +375,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
         store.dispatch(setQueriesState(queries));
         store.dispatch(setPageState(blog));
-      } 
+      }
     }
 
     return {

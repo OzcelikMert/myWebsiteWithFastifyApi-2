@@ -15,18 +15,18 @@ export default function ComponentHead({ title }: IComponentProps) {
   const page = useAppSelector((state) => state.pageState.page);
 
   const getTitle = () => {
-    let defaultTitle = appState.settings.seoContents?.title;
+    const defaultTitle = appState.settings.seoContents?.title;
     if (title) {
       title = `${defaultTitle} | ${title}`;
     } else if (page) {
       title = `${defaultTitle} | ${page.contents?.title}`;
     }
     return title;
-  }
-  
+  };
+
   const getKeywords = () => {
     let keywords: string[] = [];
-  
+
     if (page && page.tags && page.tags.length > 0) {
       keywords = page.tags
         .map((tag) => tag?.contents?.title)
@@ -37,15 +37,15 @@ export default function ComponentHead({ title }: IComponentProps) {
     ) {
       keywords = appState.settings.seoContents.tags;
     }
-  
+
     return keywords.join(',');
-  }
-  
+  };
+
   const getAlternates = () => {
     return page?.alternates?.map((alternate) => {
       const language = appState.languages.findSingle('_id', alternate.langId);
       if (language) {
-        let langCode = LanguageUtil.getCode(language);
+        const langCode = LanguageUtil.getCode(language);
         return (
           <link
             rel={`alternate_${langCode}`}
@@ -59,13 +59,13 @@ export default function ComponentHead({ title }: IComponentProps) {
         );
       }
     });
-  }
-  
+  };
+
   const getFacebookAlternates = () => {
     return page?.alternates?.map((alternate) => {
       const language = appState.languages.findSingle('_id', alternate.langId);
       if (language) {
-        let langCode = LanguageUtil.getCode(language, '_', true);
+        const langCode = LanguageUtil.getCode(language, '_', true);
         return (
           <meta
             key={`og_locale_alternate_${langCode}`}
@@ -75,7 +75,7 @@ export default function ComponentHead({ title }: IComponentProps) {
         );
       }
     });
-  }
+  };
 
   const pageTitle = getTitle();
   const desc =
@@ -97,12 +97,20 @@ export default function ComponentHead({ title }: IComponentProps) {
         href={ImageSourceUtil.getUploadedImageSrc(appState.settings.icon)}
       />
       <link key="link_canonical" rel="canonical" href={appState.url.full} />
-      <meta key="viewport" name="viewport" content="initial-scale=1.0, width=device-width" />
+      <meta
+        key="viewport"
+        name="viewport"
+        content="initial-scale=1.0, width=device-width"
+      />
       {page?.isNoIndex ? (
         <meta name="robots" content="noindex, nofollow" />
       ) : null}
       <meta key="description" name="description" content={desc} />
-      <meta key="copyright" name="copyright" content={appState.settings.seoContents?.title} />
+      <meta
+        key="copyright"
+        name="copyright"
+        content={appState.settings.seoContents?.title}
+      />
       <meta key="author" name="author" content="Özçelik Software" />
       <meta key="keywords" name="keywords" content={getKeywords()} />
       {getAlternates()}
@@ -118,15 +126,31 @@ export default function ComponentHead({ title }: IComponentProps) {
       <meta key={`og_site_name`} property="og:site_name" content={pageTitle} />
       <meta key={`og_image`} property="og:image" content={logo} />
       <meta
-        key={`og_locale`} 
+        key={`og_locale`}
         property="og:locale"
         content={language ? LanguageUtil.getCode(language, '_', true) : ''}
       />
       {getFacebookAlternates()}
-      <meta key={`twitter_card_card`} name="twitter:card" content="summary_large_image" />
-      <meta key={`twitter_card_title`} name="twitter:title" content={pageTitle} />
-      <meta key={`twitter_card_url`} name="twitter:url" content={appState.url.full} />
-      <meta key={`twitter_card_description`} name="twitter:description" content={desc} />
+      <meta
+        key={`twitter_card_card`}
+        name="twitter:card"
+        content="summary_large_image"
+      />
+      <meta
+        key={`twitter_card_title`}
+        name="twitter:title"
+        content={pageTitle}
+      />
+      <meta
+        key={`twitter_card_url`}
+        name="twitter:url"
+        content={appState.url.full}
+      />
+      <meta
+        key={`twitter_card_description`}
+        name="twitter:description"
+        content={desc}
+      />
       <meta key={`twitter_card_image`} name="twitter:image" content={logo} />
       {appState.settings.head ? HTMLReactParser(appState.settings.head) : null}
       {appState.settings.script

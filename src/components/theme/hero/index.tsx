@@ -11,7 +11,7 @@ type IComponentProps = {
 };
 
 export default function ComponentThemeHero({ component }: IComponentProps) {
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   return (

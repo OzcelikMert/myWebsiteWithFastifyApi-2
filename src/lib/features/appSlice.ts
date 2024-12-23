@@ -74,7 +74,7 @@ const appSlice = createSlice({
     setURLState(state, action: PayloadAction<Partial<IAppState['url']>>) {
       state.url = Object.assign(state.url, action.payload);
     },
-  }
+  },
 });
 
 export const {

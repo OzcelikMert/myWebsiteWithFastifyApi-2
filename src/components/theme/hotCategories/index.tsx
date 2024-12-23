@@ -23,7 +23,7 @@ type IComponentProps = {
 function ComponentThemeHotCategories({ component }: IComponentProps) {
   const [selectedCategoryId, setSelectedCategoryId] =
     useState<IComponentState['selectedCategoryId']>('');
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
   const onMouseOver = (item: IPostTermGetResultService) => {
     setSelectedCategoryId(item._id);

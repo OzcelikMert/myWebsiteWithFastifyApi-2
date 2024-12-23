@@ -4,17 +4,17 @@ import { LanguageUtil } from '@utils/language.util';
 import { useAppSelector } from '@lib/hooks';
 import { IRootState } from '@lib/store';
 
-export default function HTMLDocument({...props}: any) {
+export default function HTMLDocument({ ...props }: any) {
   let langCode = 'en_US';
   const initialState = props.__NEXT_DATA__.props.initialState as IRootState;
 
-  if(initialState){
+  if (initialState) {
     const appState = initialState.appState;
     const language = appState.languages.findSingle(
       '_id',
       appState.selectedLangId
     );
-    if(language){
+    if (language) {
       langCode = LanguageUtil.getCode(language, '_', true);
     }
   }

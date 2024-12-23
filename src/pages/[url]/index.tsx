@@ -29,11 +29,11 @@ export default function PageURL() {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) => async (context) => {
     const req = context.req;
-    let queries: IPageQueries = {
-      url: ""
-    }
+    const queries: IPageQueries = {
+      url: '',
+    };
 
-    let url = (context.params?.url as string) || '';
+    const url = (context.params?.url as string) || '';
     queries.url = decodeURI(url);
 
     store.dispatch(setQueriesState(queries));

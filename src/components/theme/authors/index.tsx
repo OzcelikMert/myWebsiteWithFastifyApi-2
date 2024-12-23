@@ -14,7 +14,7 @@ type IComponentProps = {
 };
 
 function ComponentThemeAuthors({ component }: IComponentProps) {
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   const Author = (item: IUserGetResultService, index: number) => {

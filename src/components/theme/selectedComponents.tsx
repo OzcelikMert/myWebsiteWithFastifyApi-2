@@ -30,11 +30,13 @@ const componentRegistry: Record<string, React.ComponentType<any>> = {
   hotCategories: ComponentThemeHotCategories,
   lastBlogs: ComponentThemeLastBlogs,
   navbar: ComponentThemeNavbar,
-  subscribe: ComponentThemeSubscribe
+  subscribe: ComponentThemeSubscribe,
 };
 
 export default function ComponentThemeSelectedComponents({}: IComponentProps) {
-  const privateComponents = useAppSelector(state => state.pageState.privateComponents);
+  const privateComponents = useAppSelector(
+    (state) => state.pageState.privateComponents
+  );
 
   const getElement = (component: IComponentGetResultService) => {
     let element = <div></div>;
@@ -42,17 +44,22 @@ export default function ComponentThemeSelectedComponents({}: IComponentProps) {
     try {
       const ComponentClass: any = componentRegistry[component.key];
 
-      if(ComponentClass){
-        element = <ComponentClass component={component} key={`selectedComponent_${component._id}`} />;
+      if (ComponentClass) {
+        element = (
+          <ComponentClass
+            component={component}
+            key={`selectedComponent_${component._id}`}
+          />
+        );
       }
     } catch (e) {
-      console.error("ComponentThemeSelectedComponents", e);
+      console.error('ComponentThemeSelectedComponents', e);
     }
 
     return element;
   };
 
-  return privateComponents?.map((component: any) =>
-    getElement(component) || null
+  return privateComponents?.map(
+    (component: any) => getElement(component) || null
   );
 }

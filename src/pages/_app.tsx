@@ -35,7 +35,7 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
   if (typeof window === 'undefined' && req && res) {
     const url = UrlSSRUtil.get(req);
     store.dispatch(setURLState(url));
-    console.log("MyApp.getInitialProps", url);
+    console.log('MyApp.getInitialProps', url);
 
     const isSitemap =
       url.asPath.includes('/sitemap.xml') || url.asPath.includes('/sitemaps/');

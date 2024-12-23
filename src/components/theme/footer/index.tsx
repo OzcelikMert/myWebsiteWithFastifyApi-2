@@ -26,10 +26,10 @@ type IComponentProps = {
 function ComponentThemeFooter({ component }: IComponentProps) {
   const appState = useAppSelector((state) => state.appState);
 
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
-  let socialMediaURL = HelperUtil.getSocialMediaURL(
+  const socialMediaURL = HelperUtil.getSocialMediaURL(
     appState.settings.socialMedia
   );
 

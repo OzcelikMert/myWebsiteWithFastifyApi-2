@@ -7,8 +7,8 @@ type IComponentProps = {
   children: React.ReactNode;
 };
 
-export default function ProviderNoFound({children}: IComponentProps) {
-  const pageState = useAppSelector(state => state.pageState);
+export default function ProviderNoFound({ children }: IComponentProps) {
+  const pageState = useAppSelector((state) => state.pageState);
 
   if (!pageState.page) {
     const component404 = pageState.publicComponents.findSingle(

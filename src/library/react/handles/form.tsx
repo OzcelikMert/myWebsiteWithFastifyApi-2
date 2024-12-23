@@ -89,7 +89,7 @@ export function useFormReducer<T>(initialState: T): {
 
   const setFormState = (state: Partial<T>) => {
     dispatch({ type: 'SET_STATE', value: state });
-  }
+  };
 
   return { formState, setFormState, onChangeInput, onChangeSelect };
 }

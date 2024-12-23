@@ -26,7 +26,7 @@ export default function ComponentThemeHeader({
   const isHomePage = pageState.page?.pageTypeId == PageTypeId.Home;
   const bgImage = backgroundImage || pageState.page?.contents?.image;
 
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   const HomePageContent = () => {
@@ -54,16 +54,24 @@ export default function ComponentThemeHeader({
         <h2 className="animate__animated animate__fadeInDown animate__fast">
           {title || pageState.page?.contents?.title}
         </h2>
-        {content ? (++delay) && (
-          <p className={`animate__animated animate__fadeInDown animate__delay-${delay}s`}>
-            {content}
-          </p>
-        ) : null}
-        {buttons ? (++delay) && (
-          <div className={`buttons mt-3 animate__animated animate__fadeInDown animate__delay-${delay}s`}>
-            {buttons}
-          </div>
-        ) : null}
+        {content
+          ? ++delay && (
+              <p
+                className={`animate__animated animate__fadeInDown animate__delay-${delay}s`}
+              >
+                {content}
+              </p>
+            )
+          : null}
+        {buttons
+          ? ++delay && (
+              <div
+                className={`buttons mt-3 animate__animated animate__fadeInDown animate__delay-${delay}s`}
+              >
+                {buttons}
+              </div>
+            )
+          : null}
       </div>
     );
   };

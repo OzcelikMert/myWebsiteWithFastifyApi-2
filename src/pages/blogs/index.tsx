@@ -65,13 +65,13 @@ export default function PageBlogs() {
   const MemoizedComponentBlog = React.memo(ComponentBlog);
 
   const getPageTitle = () => {
-    let title: string = "";
-    if(queries.category){
-      title = `${t("category")} - ${queries.category.contents!.title}`;
-    } else if(queries.author){
-      title = `${t("author")} - ${queries.author.name}`;
-    } else if(queries.params.search){
-      title = `${t("search")} - ${queries.params.search}`;
+    let title: string = '';
+    if (queries.category) {
+      title = `${t('category')} - ${queries.category.contents!.title}`;
+    } else if (queries.author) {
+      title = `${t('author')} - ${queries.author.name}`;
+    } else if (queries.params.search) {
+      title = `${t('search')} - ${queries.params.search}`;
     }
 
     if (queries.params.page > 1) {
@@ -86,8 +86,7 @@ export default function PageBlogs() {
       url: appState.url,
       targetPath: EndPoints.BLOGS_WITH.SEARCH(searchText),
     });
-  }
-
+  };
 
   const onClickShowMore = async () => {
     if (isActiveShowMoreButton) return false;
@@ -103,7 +102,7 @@ export default function PageBlogs() {
     });
     if (serviceResult.status && serviceResult.data) {
       setPageNumber(newPageNumber);
-      const newBlogs = [...blogs, ...(serviceResult.data ?? [])]
+      const newBlogs = [...blogs, ...(serviceResult.data ?? [])];
       setBlogs(newBlogs);
       setIsActiveShowMoreButton(queries.maxBlogCount > newBlogs.length);
     }
@@ -134,17 +133,17 @@ export default function PageBlogs() {
 
   const HeaderButtom = () => {
     return (
-      <div className='align-center'>
+      <div className="align-center">
         {queries.author ? <AuthorSocialMedia /> : undefined}
-        <div className='mt-2'>
-          <ComponentSearchButton 
-            placeHolder={t("search")}
-            onSearch={searchText => onSearch(searchText)}
+        <div className="mt-2">
+          <ComponentSearchButton
+            placeHolder={t('search')}
+            onSearch={(searchText) => onSearch(searchText)}
           />
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <ComponentAppLayout
@@ -197,7 +196,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const appState = store.getState().appState;
 
-    let queries: IPageQueries = {
+    const queries: IPageQueries = {
       author: null,
       blogs: [],
       category: null,
@@ -263,13 +262,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
         });
 
         if (serviceResultAuthor.status && serviceResultAuthor.data) {
-          let author = serviceResultAuthor.data;
+          const author = serviceResultAuthor.data;
           queries.author = author;
           authorId = author._id;
         }
       }
 
-      let serviceResultBlogs = await PostService.getMany({
+      const serviceResultBlogs = await PostService.getMany({
         langId: appState.selectedLangId,
         typeId: [PostTypeId.Blog],
         statusId: StatusId.Active,
@@ -281,11 +280,11 @@ export const getServerSideProps = wrapper.getServerSideProps(
       });
 
       if (serviceResultBlogs.status && serviceResultBlogs.data) {
-        let blogs = serviceResultBlogs.data;
+        const blogs = serviceResultBlogs.data;
         queries.blogs = blogs;
       }
 
-      let serviceResultMaxBlogCount = await PostService.getCount({
+      const serviceResultMaxBlogCount = await PostService.getCount({
         typeId: PostTypeId.Blog,
         statusId: StatusId.Active,
         ...(search ? { title: search } : {}),
@@ -296,7 +295,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
       if (serviceResultMaxBlogCount.status && serviceResultMaxBlogCount.data) {
         queries.maxBlogCount = serviceResultMaxBlogCount.data;
       }
-
     }
 
     store.dispatch(setQueriesState(queries));

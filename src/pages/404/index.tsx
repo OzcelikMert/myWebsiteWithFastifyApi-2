@@ -5,13 +5,15 @@ import { ComponentKey } from '@constants/componentKeys';
 import { useAppSelector } from '@lib/hooks';
 
 export default function Page404() {
-  const publicComponents = useAppSelector(state => state.pageState.publicComponents);
+  const publicComponents = useAppSelector(
+    (state) => state.pageState.publicComponents
+  );
 
   const component404 = publicComponents.findSingle(
     'key',
     ComponentKey.Error404
   );
-  
+
   return (
     <ComponentAppLayout pageTitle={`404`}>
       <div className="page page-404">

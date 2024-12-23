@@ -1,4 +1,4 @@
-import { ICookies } from "@lib/features/appSlice";
+import { ICookies } from '@lib/features/appSlice';
 
 declare module 'http' {
   interface IncomingMessage {

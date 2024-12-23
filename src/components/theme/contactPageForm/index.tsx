@@ -16,7 +16,7 @@ export default function ComponentThemeContactPageForm({
 }: IComponentProps) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { formState, onChangeInput } = useFormReducer(initialFormState);
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   const onSubmit = async (event: FormEvent) => {

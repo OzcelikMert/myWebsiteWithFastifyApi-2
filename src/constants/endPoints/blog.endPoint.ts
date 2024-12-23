@@ -9,9 +9,6 @@ export class BlogEndPoint {
   }
 
   URL(url?: string) {
-    return PathUtil.createPath(
-      this.mainPath,
-      `/${url ?? ':url'}`
-    );
+    return PathUtil.createPath(this.mainPath, `/${url ?? ':url'}`);
   }
 }

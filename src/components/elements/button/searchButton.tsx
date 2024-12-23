@@ -34,15 +34,15 @@ export default function ComponentSearchButton({
 
   const _onSearch = () => {
     if (onSearch) {
-      if(!VariableLibrary.isEmpty(formState.search)){
+      if (!VariableLibrary.isEmpty(formState.search)) {
         onSearch(formState.search);
       }
     }
   };
 
   const onSearchToggle = () => {
-    if(!searchStatus){
-      setFormState({search: ""});
+    if (!searchStatus) {
+      setFormState({ search: '' });
     }
     setSearchStatus((state) => !state);
   };

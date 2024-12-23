@@ -12,14 +12,19 @@ type IComponentProps = {
   onMouseOver?: (item: IPostTermGetResultService) => void;
 };
 
-export default function ComponentCategory({item, index, isSelected, onMouseOver}: IComponentProps) {
-  const url = useAppSelector(state => state.appState.url);
+export default function ComponentCategory({
+  item,
+  index,
+  isSelected,
+  onMouseOver,
+}: IComponentProps) {
+  const url = useAppSelector((state) => state.appState.url);
 
   const handleMouseOver = () => {
     if (onMouseOver) {
       onMouseOver(item);
     }
-  }
+  };
 
   const categoryURL = UrlUtil.createHref({
     url: url,

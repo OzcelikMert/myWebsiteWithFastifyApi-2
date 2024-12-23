@@ -12,5 +12,5 @@ export const LanguageKeys = [
   'weWillNeverShareYourEmail',
   'category',
   'author',
-  'search'
+  'search',
 ] as const;

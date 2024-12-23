@@ -32,7 +32,7 @@ export default function ComponentThemeSubscribe({
     useState<IComponentState['isSubscribed']>(false);
   const { formState, onChangeInput } = useFormReducer(initialFormState);
 
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   const onClickSubscribe = async () => {

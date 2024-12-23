@@ -23,9 +23,7 @@ export default function ComponentAppLayout({
   headerContent,
   headerButtons,
 }: IComponentProps) {
-  const pageState = useAppSelector(
-    (state) => state.pageState
-  );
+  const pageState = useAppSelector((state) => state.pageState);
 
   const subscribeComponent = pageState.publicComponents?.findSingle(
     'key',
@@ -46,7 +44,7 @@ export default function ComponentAppLayout({
 
   return (
     <div>
-      <ComponentHead key={"componentHead"} title={pageTitle} />
+      <ComponentHead key={'componentHead'} title={pageTitle} />
       {navbarComponent ? (
         <ComponentThemeNavbar component={navbarComponent} />
       ) : null}

@@ -15,10 +15,10 @@ export default function ComponentThemeFeatures({ component }: IComponentProps) {
     (state) => state.appState.settings.socialMedia ?? []
   );
 
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
-  let socialMediaURL = HelperUtil.getSocialMediaURL(socialMedia);
+  const socialMediaURL = HelperUtil.getSocialMediaURL(socialMedia);
 
   const Icons = () => {
     return (

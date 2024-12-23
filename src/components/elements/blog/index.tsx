@@ -35,8 +35,8 @@ export default function ComponentBlog({
   imageWidth,
   index,
 }: IComponentProps) {
-  let url = useAppSelector((state) => state.appState.url);
-  let t = useAppSelector(selectTranslation);
+  const url = useAppSelector((state) => state.appState.url);
+  const t = useAppSelector(selectTranslation);
 
   const Authors = (props: IUserPopulateService[], createdAt: string) => {
     const date = new Date(createdAt);

@@ -31,8 +31,9 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
   const [lastBlogs, setLastBlogs] = useState<IComponentState['lastBlogs']>(
     component.customData?.lastBlogs ?? []
   );
-  const [isActiveShowMoreButton, setIsActiveShowMoreButton] =
-    useState<IComponentState['isActiveShowMoreButton']>((component.customData?.maxBlogCount ?? 0) > lastBlogs.length);
+  const [isActiveShowMoreButton, setIsActiveShowMoreButton] = useState<
+    IComponentState['isActiveShowMoreButton']
+  >((component.customData?.maxBlogCount ?? 0) > lastBlogs.length);
   const [pageNumber, setPageNumber] =
     useState<IComponentState['pageNumber']>(1);
 
@@ -42,7 +43,7 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
 
   const t = useAppSelector(selectTranslation);
 
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   const MemoizedComponentBlog = React.memo(ComponentBlog);
@@ -55,7 +56,7 @@ function ComponentThemeLastBlogs({ component }: IComponentProps) {
       typeId: [PostTypeId.Blog],
       statusId: StatusId.Active,
       count: perPageBlogCount,
-      page: newPageNumber
+      page: newPageNumber,
     });
     if (serviceResult.status && serviceResult.data) {
       setPageNumber(newPageNumber);

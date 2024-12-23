@@ -36,10 +36,7 @@ export class BlogsEndPoint {
   }
 
   SEARCH(search?: string) {
-    return PathUtil.createPath(
-      this.mainPath,
-      `/search/${search ?? ':search'}`
-    );
+    return PathUtil.createPath(this.mainPath, `/search/${search ?? ':search'}`);
   }
   SEARCH_WITH(search?: string) {
     return new BlogsEndPoint(this.SEARCH(search));

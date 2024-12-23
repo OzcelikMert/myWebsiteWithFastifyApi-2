@@ -7,7 +7,7 @@ type IComponentProps = {
 };
 
 export default function ComponentThemeError404({ component }: IComponentProps) {
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
 
   return (

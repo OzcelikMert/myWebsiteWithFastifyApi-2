@@ -16,9 +16,8 @@ type IComponentProps = {
 };
 
 function ComponentThemeHotBlogs({ component }: IComponentProps) {
-  let componentElementContents =
+  const componentElementContents =
     HelperUtil.getComponentElementContents(component);
-
 
   const HotBlog = () => {
     const item = component.customData!.hotBlogs![0];
@@ -112,7 +111,7 @@ function ComponentThemeHotBlogs({ component }: IComponentProps) {
     );
   };
 
-  let hotBlogsLength = (component.customData?.hotBlogs?.length ?? 0);
+  const hotBlogsLength = component.customData?.hotBlogs?.length ?? 0;
 
   return hotBlogsLength > 0 ? (
     <section className="hot-blogs-section" id="hot-blogs">
@@ -122,11 +121,7 @@ function ComponentThemeHotBlogs({ component }: IComponentProps) {
             <HotBlog />
           </div>
           <div className="col-lg-4 ps-lg-5">
-            {
-              hotBlogsLength > 1
-                ? <HotBlogs />
-                : null
-            }
+            {hotBlogsLength > 1 ? <HotBlogs /> : null}
           </div>
         </div>
       </div>
