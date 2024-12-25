@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Html, Head, Main, NextScript } from 'next/document';
 import { LanguageUtil } from '@utils/language.util';
 import { useAppSelector } from '@lib/hooks';

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
 import { IPostTermPopulateService } from 'types/services/postTerm.service';

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ComponentThemeError404 from '@components/theme/error404';
 import ComponentAppLayout from '@components/app/layout';
 import { ComponentKey } from '@constants/componentKeys';

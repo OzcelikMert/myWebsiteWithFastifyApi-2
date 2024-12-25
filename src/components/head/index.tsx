@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import { ImageSourceUtil } from '@utils/imageSource.util';
 import { LanguageUtil } from '@utils/language.util';

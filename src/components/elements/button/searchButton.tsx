@@ -1,6 +1,6 @@
 import { useFormReducer } from '@library/react/handles/form';
 import { VariableLibrary } from '@library/variable';
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 
 type IComponentState = {
   searchStatus: boolean;
