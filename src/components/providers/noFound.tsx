@@ -1,13 +1,13 @@
 import React from 'react';
 import ComponentThemeError404 from '@components/theme/error404';
 import { ComponentKey } from '@constants/componentKeys';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
 
 type IComponentProps = {
   children: React.ReactNode;
 };
 
-export default function ProviderNoFound({ children }: IComponentProps) {
+const ProviderNoFound = (props: IComponentProps) => {
   const pageState = useAppSelector((state) => state.pageState);
 
   if (!pageState.page) {
@@ -20,5 +20,7 @@ export default function ProviderNoFound({ children }: IComponentProps) {
     ) : null;
   }
 
-  return children;
-}
+  return props.children;
+};
+
+export default ProviderNoFound;

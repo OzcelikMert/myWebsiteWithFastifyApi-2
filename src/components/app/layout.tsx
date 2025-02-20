@@ -6,7 +6,7 @@ import { ComponentKey } from '@constants/componentKeys';
 import ComponentThemeFooter from '@components/theme/footer';
 import ComponentThemeNavbar from '@components/theme/navbar';
 import ComponentThemeHeader from '@components/theme/header';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
 
 type IComponentProps = {
   children: React.ReactNode;

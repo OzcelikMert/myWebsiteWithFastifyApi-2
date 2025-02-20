@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
 import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
-import ComponentLoadingButton from '@components/elements/button/loadingButton';
+import ComponentLoadingButton from '@components/elements/button/withLoading';
 import { SubscriberService } from '@services/subscriber.service';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { VariableLibrary } from '@library/variable';

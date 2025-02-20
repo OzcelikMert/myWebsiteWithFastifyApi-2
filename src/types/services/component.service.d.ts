@@ -9,13 +9,16 @@ export interface IComponentAlternateService {
   langId: string;
 }
 
+export type IComponentGetResultServiceElement = {
+  contents?: IComponentElementContentModel;
+  alternates?: IComponentAlternateService[];
+} & Omit<IComponentElementModel, 'contents'>;
+
 export type IComponentGetResultService<T = { [key: string]: any }> = {
-  authorId: IUserPopulateService;
-  lastAuthorId: IUserPopulateService;
-  elements: (IComponentElementModel & {
-    alternates?: IComponentAlternateService[];
-  })[];
-} & Omit<IComponentModel<T>, 'elements' | 'authorId' | 'lastAuthorId'>;
+  author?: IUserPopulateService;
+  lastAuthor?: IUserPopulateService;
+  elements: IComponentGetResultServiceElement[];
+} & Omit<IComponentModel<T>, 'elements'>;
 
 export interface IComponentGetWithIdParamService {
   _id: string;

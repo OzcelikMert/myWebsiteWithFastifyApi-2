@@ -7,23 +7,23 @@ type IComponentProps = {
   describe: string;
 };
 
-export default function ComponentFeatureIcon({
-  describe,
-  icon,
-  title,
-  color,
-}: IComponentProps) {
+const ComponentFeatureIcon = React.memo((props: IComponentProps) => {
   return (
     <div className="card">
       <div className="card-body">
         <div className="icon">
           <span>
-            <i style={{ color: color }} className={`mdi mdi-${icon}`}></i>
+            <i
+              style={{ ...(props.color ? { color: props.color } : {}) }}
+              className={`mdi mdi-${props.icon}`}
+            ></i>
           </span>
         </div>
-        <h4 className="card-title">{title}</h4>
-        <p className="card-text">{describe} </p>
+        <h4 className="card-title">{props.title}</h4>
+        <p className="card-text">{props.describe} </p>
       </div>
     </div>
   );
-}
+});
+
+export default ComponentFeatureIcon;

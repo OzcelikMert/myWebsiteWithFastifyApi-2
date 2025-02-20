@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { setCookie } from 'cookies-next';
-import { IAppStore } from '@lib/store';
+import { IAppStore } from '@redux/store';
 
 const setLangId = (
   store: IAppStore,

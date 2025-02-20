@@ -1,6 +1,6 @@
 import React from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
 import ComponentThemeAuthors from './authors';
 import ComponentThemeCategories from './categories';
 import ComponentThemeContactPageForm from './contactPageForm';
@@ -14,10 +14,9 @@ import ComponentThemeHotCategories from './hotCategories';
 import ComponentThemeLastBlogs from './lastBlogs';
 import ComponentThemeNavbar from './navbar';
 import ComponentThemeSubscribe from './subscribe';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 
-type IComponentProps = {};
-
-const componentRegistry: Record<string, React.ComponentType<any>> = {
+const componentRegistry: Record<string, IComponentWithServerSideProps> = {
   authors: ComponentThemeAuthors,
   categories: ComponentThemeCategories,
   contactPageForm: ComponentThemeContactPageForm,
@@ -33,33 +32,39 @@ const componentRegistry: Record<string, React.ComponentType<any>> = {
   subscribe: ComponentThemeSubscribe,
 };
 
-export default function ComponentThemeSelectedComponents({}: IComponentProps) {
-  const privateComponents = useAppSelector(
-    (state) => state.pageState.privateComponents
-  );
+type IComponentProps = {};
 
-  const getElement = (component: IComponentGetResultService) => {
-    let element = <div></div>;
+const ComponentThemeSelectedComponents = React.memo(
+  (props: IComponentProps) => {
+    const privateComponents = useAppSelector(
+      (state) => state.pageState.privateComponents
+    );
 
-    try {
-      const ComponentClass: any = componentRegistry[component.key];
+    const getElement = (component: IComponentGetResultService) => {
+      let element = <div></div>;
 
-      if (ComponentClass) {
-        element = (
-          <ComponentClass
-            component={component}
-            key={`selectedComponent_${component._id}`}
-          />
-        );
+      try {
+        const ComponentClass = componentRegistry[component.key];
+
+        if (ComponentClass) {
+          element = (
+            <ComponentClass
+              component={component}
+              key={`selectedComponent_${component._id}`}
+            />
+          );
+        }
+      } catch (e) {
+        console.error('ComponentThemeSelectedComponents', e);
       }
-    } catch (e) {
-      console.error('ComponentThemeSelectedComponents', e);
-    }
 
-    return element;
-  };
+      return element;
+    };
 
-  return privateComponents?.map(
-    (component: any) => getElement(component) || null
-  );
-}
+    return privateComponents?.map(
+      (component: any) => getElement(component) || null
+    );
+  }
+);
+
+export default ComponentThemeSelectedComponents;

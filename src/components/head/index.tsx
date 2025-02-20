@@ -4,24 +4,59 @@ import { ImageSourceUtil } from '@utils/imageSource.util';
 import { LanguageUtil } from '@utils/language.util';
 import { UrlUtil } from '@utils/url.util';
 import HTMLReactParser from 'html-react-parser';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
+import { IPostAlternateService } from 'types/services/post.service';
+
+const Alternate = React.memo((props: IPostAlternateService) => {
+  const appState = useAppSelector((state) => state.appState);
+
+  const language = appState.languages.findSingle('_id', props.langId);
+  if (language) {
+    const langCode = LanguageUtil.getCode(language);
+    return (
+      <link
+        rel={`alternate_${langCode}`}
+        hrefLang={langCode}
+        href={UrlUtil.replaceLanguageCode({
+          url: appState.url,
+          newLanguage: language,
+          withBase: true,
+        })}
+      />
+    );
+  } else {
+    return null;
+  }
+});
+
+const FacebookAlternate = React.memo((props: IPostAlternateService) => {
+  const appState = useAppSelector((state) => state.appState);
+
+  const language = appState.languages.findSingle('_id', props.langId);
+  if (language) {
+    const langCode = LanguageUtil.getCode(language, '_', true);
+    return <meta property="og:locale:alternate" content={langCode} />;
+  } else {
+    return null;
+  }
+});
 
 type IComponentProps = {
   title?: string;
 };
 
-export default function ComponentHead({ title }: IComponentProps) {
+const ComponentHead = React.memo((props: IComponentProps) => {
   const appState = useAppSelector((state) => state.appState);
   const page = useAppSelector((state) => state.pageState.page);
 
   const getTitle = () => {
     const defaultTitle = appState.settings.seoContents?.title;
-    if (title) {
-      title = `${defaultTitle} | ${title}`;
+    if (props.title) {
+      props.title = `${defaultTitle} | ${props.title}`;
     } else if (page) {
-      title = `${defaultTitle} | ${page.contents?.title}`;
+      props.title = `${defaultTitle} | ${page.contents?.title}`;
     }
-    return title;
+    return props.title;
   };
 
   const getKeywords = () => {
@@ -39,42 +74,6 @@ export default function ComponentHead({ title }: IComponentProps) {
     }
 
     return keywords.join(',');
-  };
-
-  const getAlternates = () => {
-    return page?.alternates?.map((alternate) => {
-      const language = appState.languages.findSingle('_id', alternate.langId);
-      if (language) {
-        const langCode = LanguageUtil.getCode(language);
-        return (
-          <link
-            rel={`alternate_${langCode}`}
-            hrefLang={langCode}
-            href={UrlUtil.replaceLanguageCode({
-              url: appState.url,
-              newLanguage: language,
-              withBase: true,
-            })}
-          />
-        );
-      }
-    });
-  };
-
-  const getFacebookAlternates = () => {
-    return page?.alternates?.map((alternate) => {
-      const language = appState.languages.findSingle('_id', alternate.langId);
-      if (language) {
-        const langCode = LanguageUtil.getCode(language, '_', true);
-        return (
-          <meta
-            key={`og_locale_alternate_${langCode}`}
-            property="og:locale:alternate"
-            content={langCode}
-          />
-        );
-      }
-    });
   };
 
   const pageTitle = getTitle();
@@ -113,7 +112,9 @@ export default function ComponentHead({ title }: IComponentProps) {
       />
       <meta key="author" name="author" content="Özçelik Software" />
       <meta key="keywords" name="keywords" content={getKeywords()} />
-      {getAlternates()}
+      {page?.alternates?.map((item) => (
+        <Alternate key={`alternate-${item.langId}`} {...item} />
+      ))}
 
       <meta key="name" itemProp="name" content={pageTitle} />
       <meta key="description" itemProp="description" content={desc} />
@@ -130,7 +131,12 @@ export default function ComponentHead({ title }: IComponentProps) {
         property="og:locale"
         content={language ? LanguageUtil.getCode(language, '_', true) : ''}
       />
-      {getFacebookAlternates()}
+      {page?.alternates?.map((item) => (
+        <FacebookAlternate
+          key={`facebook-alternate-${item.langId}`}
+          {...item}
+        />
+      ))}
       <meta
         key={`twitter_card_card`}
         name="twitter:card"
@@ -158,4 +164,6 @@ export default function ComponentHead({ title }: IComponentProps) {
         : null}
     </Head>
   );
-}
+});
+
+export default ComponentHead;

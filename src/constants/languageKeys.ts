@@ -1,4 +1,6 @@
 export const LanguageKeys = [
+  'fillCorrectlyWithName',
+  'inputIsRequiredWithName',
   'by',
   'blog',
   'categories',

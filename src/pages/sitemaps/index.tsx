@@ -4,7 +4,7 @@ import { PostUtil } from '@utils/post.util';
 import { SitemapService } from '@services/sitemap.service';
 import { SitemapUtil } from '@utils/sitemap.util';
 import { LanguageUtil } from '@utils/language.util';
-import { wrapper } from '@lib/store';
+import { wrapper } from '@redux/store';
 
 export default function PageSitemapsXML() {
   return null;

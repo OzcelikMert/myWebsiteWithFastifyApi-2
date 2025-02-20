@@ -6,11 +6,15 @@ import { PostTermService } from '@services/postTerm.service';
 import { PostTermTypeId } from '@constants/postTermTypes';
 import ComponentCategory from '@components/elements/category';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 import { HelperUtil } from '@utils/helper.util';
 
 type IComponentState = {
-  selectedCategoryId: string;
+  selectedId: string;
+};
+
+const initialState: IComponentState = {
+  selectedId: '',
 };
 
 type IComponentProps = {
@@ -19,44 +23,49 @@ type IComponentProps = {
   }>;
 };
 
-function ComponentThemeCategories({ component }: IComponentProps) {
-  const [selectedCategoryId, setSelectedCategoryId] =
-    useState<IComponentState['selectedCategoryId']>('');
-  const componentElementContents =
-    HelperUtil.getComponentElementContents(component);
+const ComponentThemeCategories: IComponentWithServerSideProps<IComponentProps> =
+  React.memo((props) => {
+    const [selectedId, setSelectedId] = useState(initialState.selectedId);
 
-  const onMouseOver = (item: IPostTermGetResultService) => {
-    setSelectedCategoryId(item._id);
-  };
+    const componentElementContents = HelperUtil.getComponentElementContents(
+      props.component
+    );
 
-  return (
-    <section className="categories-section">
-      <div className="container">
-        <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
-          {componentElementContents('title')?.content}
-        </h2>
-        <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
-          {componentElementContents('describe')?.content}
-        </p>
-        <div className="categories-container">
-          <div className="options">
-            {component.customData?.categories?.map((category, index) => (
-              <ComponentCategory
-                key={`categories_${category._id}`}
-                item={category}
-                index={index}
-                onMouseOver={(item) => onMouseOver(item)}
-                isSelected={category._id == selectedCategoryId}
-              />
-            ))}
+    const onMouseOver = (item: IPostTermGetResultService) => {
+      setSelectedId(item._id);
+    };
+
+    return (
+      <section className="categories-section">
+        <div className="container">
+          <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
+            {componentElementContents('title')?.content}
+          </h2>
+          <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
+            {componentElementContents('describe')?.content}
+          </p>
+          <div className="categories-container">
+            <div className="options">
+              {props.component.customData?.categories?.map(
+                (category, index) =>
+                  category && (
+                    <ComponentCategory
+                      key={`categories_${category._id}`}
+                      item={category}
+                      index={index}
+                      onMouseOver={(item) => onMouseOver(item)}
+                      isSelected={category._id == selectedId}
+                    />
+                  )
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  });
 
-const componentServerSideProps: IFuncComponentServerSideProps = async (
+ComponentThemeCategories.componentServerSideProps = async (
   store,
   req,
   component
@@ -74,7 +83,5 @@ const componentServerSideProps: IFuncComponentServerSideProps = async (
     })
   ).data;
 };
-
-ComponentThemeCategories.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeCategories;

@@ -18,46 +18,45 @@ export interface IPostAlternateService {
   url?: string;
 }
 
-export type IPostGetResultService = {
-  authorId: IUserPopulateService;
-  lastAuthorId: IUserPopulateService;
+export type IPostGetResultServiceECommerceVariation = {
+  product?: Omit<
+    IPostModel,
+    '_id' | 'typeId' | 'contents' | 'authorId' | 'lastAuthorId'
+  > & {
+    _id?: string;
+    alternates?: IPostAlternateService[];
+    contents?: IPostContentModel;
+    author?: IUserPopulateService;
+    lastAuthor?: IUserPopulateService;
+  };
+} & IPostECommerceVariationModel;
+
+export type IPostGetResultServiceECommerceAttribute<T = string> = {
+  variationTerms: T[];
+  attributeTerm?: IPostTermPopulateService;
+} & Omit<IPostECommerceAttributeModel, 'variationTerms'>;
+
+export type IPostGetResultServiceECommerce<T = string> = {
+  variations: IPostGetResultServiceECommerceVariation[];
+  attributes: IPostGetResultServiceECommerceAttribute<T>[];
+} & Omit<IPostECommerceModel, 'variations' | 'attributes'>;
+
+export type IPostGetResultService<T = IPostTermPopulateService> = {
+  author?: IUserPopulateService;
+  lastAuthor?: IUserPopulateService;
   authors?: IUserPopulateService[];
   views?: number;
-  categories?: IPostTermPopulateService[];
-  tags?: IPostTermPopulateService[];
+  categories?: T[];
+  tags?: T[];
   contents?: IPostContentModel;
   alternates?: IPostAlternateService[];
-  eCommerce?: Omit<
-    IPostECommerceModel<IPostTermPopulateService, IPostTermPopulateService[]>,
-    'variations'
-  > & {
-    variations?: (Omit<
-      IPostECommerceVariationModel<IPostTermPopulateService>,
-      'contents'
-    > & {
-      contents?: IPostECommerceVariationContentModel;
-      alternates?: IPostAlternateService[];
-    })[];
-  };
+  eCommerce?: IPostGetResultServiceECommerce<T>;
 } & Omit<
   IPostModel,
-  | 'contents'
-  | 'categories'
-  | 'tags'
-  | 'eCommerce'
-  | 'authorId'
-  | 'lastAuthorId'
-  | 'authors'
+  'contents' | 'categories' | 'tags' | 'eCommerce' | 'authors'
 >;
 
-export type IPostGetManyResultService = {
-  eCommerce?: Omit<IPostECommerceModel, 'variations'> & {
-    variations?: (Omit<IPostECommerceVariationModel, 'contents'> & {
-      contents?: IPostECommerceVariationContentModel;
-      alternates?: IPostAlternateService[];
-    })[];
-  };
-} & Omit<IPostGetResultService, 'eCommerce'>;
+export type IPostGetManyResultService = {} & IPostGetResultService;
 
 export interface IPostGetPrevNextResultService {
   _id: string;

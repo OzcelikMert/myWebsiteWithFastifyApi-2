@@ -13,16 +13,16 @@ import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { SettingService } from '@services/setting.service';
 import { LanguageSSRUtil } from '@utils/ssr/language.ssr.util';
 import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
-import { wrapper } from '@lib/store';
+import { wrapper } from '@redux/store';
 import {
   setCookiesState,
   setSettingsState,
   setURLState,
-} from '@lib/features/appSlice';
-import { setIsSitemapState } from '@lib/features/pageSlice';
+} from '@redux/features/appSlice';
+import { setIsSitemapState } from '@redux/features/pageSlice';
 import App from 'next/app';
 import { ComponentKey } from '@constants/componentKeys';
-import { setTranslationState } from '@lib/features/translationSlice';
+import { setTranslationState } from '@redux/features/translationSlice';
 
 function MyApp({ Component, ...rest }: AppProps) {
   return <Component {...rest.pageProps} />;

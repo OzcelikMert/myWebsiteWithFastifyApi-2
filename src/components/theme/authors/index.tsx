@@ -3,87 +3,48 @@ import { StatusId } from '@constants/status';
 import { UserService } from '@services/user.service';
 import { PermissionId } from '@constants/permissions';
 import { IUserGetResultService } from 'types/services/user.service';
-import Image from 'next/image';
-import { ImageSourceUtil } from '@utils/imageSource.util';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 import { HelperUtil } from '@utils/helper.util';
+import ComponentAuthor from '@components/elements/author';
 
 type IComponentProps = {
   component: IComponentGetResultService<{ authors?: IUserGetResultService[] }>;
 };
 
-function ComponentThemeAuthors({ component }: IComponentProps) {
-  const componentElementContents =
-    HelperUtil.getComponentElementContents(component);
-
-  const Author = (item: IUserGetResultService, index: number) => {
-    return (
-      <div key={`author_${item._id}`} className="card-wrapper">
-        <div className="card">
-          <div className="card-image">
-            <Image
-              className="img-fluid"
-              src={ImageSourceUtil.getUploadedImageSrc(item.image)}
-              alt={item.name}
-              fill
-            />
-          </div>
-          <ul className="social-icons">
-            <li>
-              <a href={item.facebook ?? '#'}>
-                <i className="mdi mdi-facebook"></i>
-              </a>
-            </li>
-            <li>
-              <a href={item.instagram ?? '#'}>
-                <i className="mdi mdi-instagram"></i>
-              </a>
-            </li>
-            <li>
-              <a href={item.twitter ?? '#'}>
-                <i className="mdi mdi-twitter"></i>
-              </a>
-            </li>
-            <li>
-              <a href={item.email ? `mailto:${item.email}` : '#'}>
-                <i className="mdi mdi-email"></i>
-              </a>
-            </li>
-          </ul>
-
-          <div className="details">
-            <h2>
-              {item.name}
-              <br />
-              <span className="job-title">{item.comment}</span>
-            </h2>
-          </div>
-        </div>
-      </div>
+const ComponentThemeAuthors: IComponentWithServerSideProps<IComponentProps> =
+  React.memo((props) => {
+    const componentElementContents = HelperUtil.getComponentElementContents(
+      props.component
     );
-  };
 
-  return (
-    <section className="authors-section">
-      <div className="container">
-        <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
-          {componentElementContents('title')?.content}
-        </h2>
-        <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
-          {componentElementContents('describe')?.content}
-        </p>
-        <div className="container d-flex flex-wrap justify-content-center">
-          {component.customData?.authors?.map((author, index) =>
-            Author(author, index)
-          )}
+    return (
+      <section className="authors-section">
+        <div className="container">
+          <h2 className="section-header animate__animated animate__fadeInDown animate__fast">
+            {componentElementContents('title')?.content}
+          </h2>
+          <p className="section-content animate__animated animate__fadeInDown animate__delay-1s">
+            {componentElementContents('describe')?.content}
+          </p>
+          <div className="container d-flex flex-wrap justify-content-center">
+            {props.component.customData?.authors?.map(
+              (author, index) =>
+                author && (
+                  <ComponentAuthor
+                    key={`author-${author._id}`}
+                    item={author}
+                    index={index}
+                  />
+                )
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  });
 
-const componentServerSideProps: IFuncComponentServerSideProps = async (
+ComponentThemeAuthors.componentServerSideProps = async (
   store,
   req,
   component
@@ -97,7 +58,5 @@ const componentServerSideProps: IFuncComponentServerSideProps = async (
     })
   ).data;
 };
-
-ComponentThemeAuthors.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeAuthors;

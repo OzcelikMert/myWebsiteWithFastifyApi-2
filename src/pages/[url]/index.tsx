@@ -3,9 +3,9 @@ import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentThemeSelectedComponents from '@components/theme/selectedComponents';
 import ComponentAppLayout from '@components/app/layout';
-import { wrapper } from '@lib/store';
-import { setQueriesState } from '@lib/features/pageSlice';
-import { useAppSelector } from '@lib/hooks';
+import { wrapper } from '@redux/store';
+import { setQueriesState } from '@redux/features/pageSlice';
+import { useAppSelector } from '@redux/hooks';
 
 type IPageQueries = {
   url: string;

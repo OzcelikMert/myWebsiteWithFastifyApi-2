@@ -17,10 +17,10 @@ import Image from 'next/image';
 import { ImageSourceUtil } from '@utils/imageSource.util';
 import { DateMask } from '@library/variable/date';
 import ComponentBlog from '@components/elements/blog';
-import { useAppSelector } from '@lib/hooks';
-import { wrapper } from '@lib/store';
-import { setPageState, setQueriesState } from '@lib/features/pageSlice';
-import { selectTranslation } from '@lib/features/translationSlice';
+import { useAppSelector } from '@redux/hooks';
+import { wrapper } from '@redux/store';
+import { setPageState, setQueriesState } from '@redux/features/pageSlice';
+import { selectTranslation } from '@redux/features/translationSlice';
 import { VariableLibrary } from '@library/variable';
 
 type IPageQueries = {
@@ -160,8 +160,8 @@ export default function PageBlogURL() {
           <div className="authors mt-3">
             <h6 className="fw-bold">{'authors'}</h6>
             {blog
-              ? [blog.authorId, ...(blog.authors ?? [])].map((author, index) =>
-                  Author(author, index)
+              ? [blog.author, ...(blog.authors ?? [])].map(
+                  (author, index) => author && Author(author, index)
                 )
               : null}
           </div>

@@ -9,7 +9,9 @@ import { StatusId } from '@constants/status';
 
 export interface IPostTermPopulateService {
   _id: string;
-  typeId: number;
+  postTypeId: PostTypeId;
+  typeId: PostTermTypeId;
+  rank: number;
   contents: {
     langId: string;
     title?: string;
@@ -25,13 +27,14 @@ export interface IPostTermAlternateService {
 }
 
 export type IPostTermGetResultService = {
-  authorId: IUserPopulateService;
-  lastAuthorId: IUserPopulateService;
-  parentId?: IPostTermPopulateService;
+  author?: IUserPopulateService;
+  lastAuthor?: IUserPopulateService;
+  parent?: IPostTermPopulateService;
   contents?: IPostTermContentModel;
   alternates?: IPostTermAlternateService[];
   postCount?: number;
-} & Omit<IPostTermModel, 'contents' | 'authorId' | 'lastAuthorId' | 'parentId'>;
+  views?: number;
+} & Omit<IPostTermModel, 'contents'>;
 
 export interface IPostTermGetWithIdParamService {
   _id: string;

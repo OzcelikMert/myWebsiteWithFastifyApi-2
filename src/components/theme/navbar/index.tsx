@@ -6,7 +6,7 @@ import { INavigationGetResultService } from 'types/services/navigation.service';
 import { Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import { UrlUtil } from '@utils/url.util';
 import { IFuncComponentServerSideProps } from 'types/components/ssr';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
 import { HelperUtil } from '@utils/helper.util';
 
 type IComponentState = {
@@ -61,7 +61,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
 
   const DropdownItem = (props: INavigationGetResultService, index: number) => {
     const children =
-      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      component.customData?.navigations?.findMulti('parentId', props._id) ??
       [];
 
     return children.length > 0 ? (
@@ -81,7 +81,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
 
   const Dropdown = (props: INavigationGetResultService, index: number) => {
     const children =
-      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      component.customData?.navigations?.findMulti('parentId', props._id) ??
       [];
 
     return (
@@ -103,7 +103,7 @@ function ComponentThemeNavbar({ component }: IComponentProps) {
   const NavItem = (props: INavigationGetResultService, index: number) => {
     if (props.parentId) return null;
     const children =
-      component.customData?.navigations?.findMulti('parentId._id', props._id) ??
+      component.customData?.navigations?.findMulti('parentId', props._id) ??
       [];
 
     return children.length > 0 ? (

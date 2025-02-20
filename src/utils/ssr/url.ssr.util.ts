@@ -1,4 +1,4 @@
-import { IURL } from '@lib/features/appSlice';
+import { IURL } from '@redux/features/appSlice';
 import { IncomingMessage, ServerResponse } from 'http';
 import absoluteUrl from 'next-absolute-url';
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Html, Head, Main, NextScript } from 'next/document';
 import { LanguageUtil } from '@utils/language.util';
-import { useAppSelector } from '@lib/hooks';
-import { IRootState } from '@lib/store';
+import { useAppSelector } from '@redux/hooks';
+import { IRootState } from '@redux/store';
 
 export default function HTMLDocument({ ...props }: any) {
   let langCode = 'en_US';

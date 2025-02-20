@@ -3,8 +3,8 @@ import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentThemeSelectedComponents from '@components/theme/selectedComponents';
 import ComponentAppLayout from '@components/app/layout';
-import { wrapper } from '@lib/store';
-import { useAppSelector } from '@lib/hooks';
+import { wrapper } from '@redux/store';
+import { useAppSelector } from '@redux/hooks';
 
 export default function PageHome() {
   return (

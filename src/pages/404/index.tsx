@@ -2,7 +2,7 @@ import React from 'react';
 import ComponentThemeError404 from '@components/theme/error404';
 import ComponentAppLayout from '@components/app/layout';
 import { ComponentKey } from '@constants/componentKeys';
-import { useAppSelector } from '@lib/hooks';
+import { useAppSelector } from '@redux/hooks';
 
 export default function Page404() {
   const publicComponents = useAppSelector(

@@ -6,12 +6,13 @@ import { IPageGetParamUtil } from 'types/utils/page.util';
 import { ComponentService } from '@services/component.service';
 import { ComponentTypeId } from '@constants/componentTypes';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { IAppStore } from '@lib/store';
+import { IAppStore } from '@redux/store';
 import {
   setPageState,
   setPrivateComponentsState,
   setPublicComponentsState,
-} from '@lib/features/pageSlice';
+} from '@redux/features/pageSlice';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 
 const init = async (store: IAppStore, params: IPageGetParamUtil) => {
   const { appState } = store.getState();
@@ -91,7 +92,7 @@ const initComponentSSRProps = async (
     try {
       const componentClass = (
         await import(`@components/theme/${component.key}`)
-      ).default as any;
+      ).default as IComponentWithServerSideProps;
       if (componentClass.componentServerSideProps) {
         await componentClass.componentServerSideProps(store, req, component);
       }

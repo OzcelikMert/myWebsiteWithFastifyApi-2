@@ -5,13 +5,13 @@ import { CookieSSRUtil } from '@utils/ssr/cookie.ssr.util';
 import { UrlUtil } from '@utils/url.util';
 import { IncomingMessage, ServerResponse } from 'http';
 import { UrlSSRUtil } from '@utils/ssr/url.ssr.util';
-import { IAppStore } from '@lib/store';
+import { IAppStore } from '@redux/store';
 import {
   setDefaultLangIdState,
   setLanguagesState,
   setSelectedLangCodeState,
   setSelectedLangIdState,
-} from '@lib/features/appSlice';
+} from '@redux/features/appSlice';
 
 const init = async (
   store: IAppStore,

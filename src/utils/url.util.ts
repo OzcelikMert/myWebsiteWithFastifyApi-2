@@ -1,6 +1,6 @@
 import { ILanguageGetResultService } from 'types/services/language.service';
 import { LanguageUtil } from '@utils/language.util';
-import { IURL } from '@lib/features/appSlice';
+import { IURL } from '@redux/features/appSlice';
 
 const replaceLanguageCode = (params: {
   url: IURL;

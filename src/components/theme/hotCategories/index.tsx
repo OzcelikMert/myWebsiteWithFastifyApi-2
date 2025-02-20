@@ -8,10 +8,16 @@ import ComponentCategory from '@components/elements/category';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { HelperUtil } from '@utils/helper.util';
-import { IFuncComponentServerSideProps } from 'types/components/ssr';
+import {
+  IComponentWithServerSideProps,
+} from 'types/components/ssr';
 
 type IComponentState = {
-  selectedCategoryId: string;
+  selectedId: string;
+};
+
+const initialState: IComponentState = {
+  selectedId: '',
 };
 
 type IComponentProps = {
@@ -20,66 +26,71 @@ type IComponentProps = {
   }>;
 };
 
-function ComponentThemeHotCategories({ component }: IComponentProps) {
-  const [selectedCategoryId, setSelectedCategoryId] =
-    useState<IComponentState['selectedCategoryId']>('');
-  const componentElementContents =
-    HelperUtil.getComponentElementContents(component);
-  const onMouseOver = (item: IPostTermGetResultService) => {
-    setSelectedCategoryId(item._id);
-  };
+const ComponentThemeHotCategories: IComponentWithServerSideProps<IComponentProps> =
+  React.memo((props) => {
+    const [selectedId, setSelectedId] = useState(initialState.selectedId);
 
-  return (
-    <section className="categories-section hot-categories-section">
-      <div className="container">
-        <AnimationOnScroll
-          animateIn="animate__fadeInDown"
-          animateOnce={true}
-          animatePreScroll={false}
-        >
-          <h2 className="section-header">
-            {componentElementContents('title')?.content}
-          </h2>
-        </AnimationOnScroll>
-        <AnimationOnScroll
-          animateIn="animate__fadeInDown"
-          delay={200}
-          animateOnce={true}
-          animatePreScroll={false}
-        >
-          <p className="section-content">
-            {componentElementContents('describe')?.content}
-          </p>
-        </AnimationOnScroll>
-        <AnimationOnScroll
-          animateIn="animate__fadeInLeft"
-          delay={500}
-          animateOnce={true}
-          animatePreScroll={false}
-        >
-          <div className="categories-container">
-            <div className="options">
-              {component.customData?.categories?.map((category, index) => (
-                <ComponentCategory
-                  key={`hotCategories_${category._id}`}
-                  item={category}
-                  index={index}
-                  onMouseOver={(item) => onMouseOver(item)}
-                  isSelected={
-                    (selectedCategoryId == '' && index == 0) ||
-                    category._id == selectedCategoryId
-                  }
-                />
-              ))}
+    const componentElementContents = HelperUtil.getComponentElementContents(
+      props.component
+    );
+
+    const onMouseOver = (item: IPostTermGetResultService) => {
+      setSelectedId(item._id);
+    };
+
+    return (
+      <section className="categories-section hot-categories-section">
+        <div className="container">
+          <AnimationOnScroll
+            animateIn="animate__fadeInDown"
+            animateOnce={true}
+            animatePreScroll={false}
+          >
+            <h2 className="section-header">
+              {componentElementContents('title')?.content}
+            </h2>
+          </AnimationOnScroll>
+          <AnimationOnScroll
+            animateIn="animate__fadeInDown"
+            delay={200}
+            animateOnce={true}
+            animatePreScroll={false}
+          >
+            <p className="section-content">
+              {componentElementContents('describe')?.content}
+            </p>
+          </AnimationOnScroll>
+          <AnimationOnScroll
+            animateIn="animate__fadeInLeft"
+            delay={500}
+            animateOnce={true}
+            animatePreScroll={false}
+          >
+            <div className="categories-container">
+              <div className="options">
+                {props.component.customData?.categories?.map(
+                  (category, index) => (
+                    <ComponentCategory
+                      key={`hot-categories-${category._id}`}
+                      item={category}
+                      index={index}
+                      onMouseOver={(item) => onMouseOver(item)}
+                      isSelected={
+                        (selectedId == '' && index == 0) ||
+                        category._id == selectedId
+                      }
+                    />
+                  )
+                )}
+              </div>
             </div>
-          </div>
-        </AnimationOnScroll>
-      </div>
-    </section>
-  );
-}
+          </AnimationOnScroll>
+        </div>
+      </section>
+    );
+  });
 
-const componentServerSideProps: IFuncComponentServerSideProps = async (
+ComponentThemeHotCategories.componentServerSideProps = async (
   store,
   req,
   component
@@ -98,7 +109,5 @@ const componentServerSideProps: IFuncComponentServerSideProps = async (
     })
   ).data;
 };
-
-ComponentThemeHotCategories.componentServerSideProps = componentServerSideProps;
 
 export default ComponentThemeHotCategories;
