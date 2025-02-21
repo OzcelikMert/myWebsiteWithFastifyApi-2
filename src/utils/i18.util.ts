@@ -1,6 +1,5 @@
 import { ILanguageKeys } from 'types/constants/languageKeys';
-import { ZodIssueCode} from 'zod';
-
+import { ZodIssueCode } from 'zod';
 
 const getFormInputErrorText = (errorCode?: any): ILanguageKeys => {
   switch (errorCode as ZodIssueCode) {

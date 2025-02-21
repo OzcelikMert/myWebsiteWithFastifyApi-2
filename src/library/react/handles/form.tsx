@@ -80,7 +80,7 @@ export function useFormReducer<T>(initialState: T): {
           ? Number(value) || 0
           : value;
 
-    dispatch({ type: 'UPDATE_FIELD', payload: { name, value: newValue} });
+    dispatch({ type: 'UPDATE_FIELD', payload: { name, value: newValue } });
   };
 
   const onChangeSelect = (name: string, value: any) => {
@@ -89,7 +89,7 @@ export function useFormReducer<T>(initialState: T): {
 
   const setFormState = (state: Partial<T>) => {
     dispatch({ type: 'SET_STATE', payload: { value: state } });
-  }
+  };
 
   return { formState, setFormState, onChangeInput, onChangeSelect };
 }

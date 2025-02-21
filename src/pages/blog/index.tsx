@@ -159,31 +159,40 @@ export const getServerSideProps = wrapper.getServerSideProps(
     queries.url = url;
 
     if (!VariableLibrary.isEmpty(url)) {
-      const serviceResultBlog = await PostService.getWithURL({
-        typeId: PostTypeId.Blog,
-        url: url,
-        langId: appState.selectedLangId,
-        statusId: StatusId.Active,
-      }, req.abortController.signal);
+      const serviceResultBlog = await PostService.getWithURL(
+        {
+          typeId: PostTypeId.Blog,
+          url: url,
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+        },
+        req.abortController.signal
+      );
 
       if (serviceResultBlog.status && serviceResultBlog.data) {
         const blog = serviceResultBlog.data;
 
-        await PostService.updateViewWithId({
-          _id: blog._id,
-          typeId: blog.typeId,
-          langId: appState.selectedLangId,
-          url: url,
-        }, req.abortController.signal);
+        await PostService.updateViewWithId(
+          {
+            _id: blog._id,
+            typeId: blog.typeId,
+            langId: appState.selectedLangId,
+            url: url,
+          },
+          req.abortController.signal
+        );
 
         queries.blog = blog;
 
-        const serviceResultBlogPrevNext = await PostService.getPrevNextWithId({
-          _id: blog._id,
-          typeId: blog.typeId,
-          langId: appState.selectedLangId,
-          statusId: StatusId.Active,
-        }, req.abortController.signal);
+        const serviceResultBlogPrevNext = await PostService.getPrevNextWithId(
+          {
+            _id: blog._id,
+            typeId: blog.typeId,
+            langId: appState.selectedLangId,
+            statusId: StatusId.Active,
+          },
+          req.abortController.signal
+        );
 
         if (
           serviceResultBlogPrevNext.status &&
@@ -193,22 +202,25 @@ export const getServerSideProps = wrapper.getServerSideProps(
           queries.nextBlog = serviceResultBlogPrevNext.data.next || null;
         }
 
-        const serviceResultBlogsMightLike = await PostService.getMany({
-          typeId: [blog.typeId],
-          categories: blog.categories?.map((category) => category._id),
-          langId: appState.selectedLangId,
-          statusId: StatusId.Active,
-          count: 3,
-          ignorePostId: [
-            blog._id,
-            ...(serviceResultBlogPrevNext.data?.next
-              ? [serviceResultBlogPrevNext.data.next._id]
-              : []),
-            ...(serviceResultBlogPrevNext.data?.prev
-              ? [serviceResultBlogPrevNext.data.prev._id]
-              : []),
-          ],
-        }, req.abortController.signal);
+        const serviceResultBlogsMightLike = await PostService.getMany(
+          {
+            typeId: [blog.typeId],
+            categories: blog.categories?.map((category) => category._id),
+            langId: appState.selectedLangId,
+            statusId: StatusId.Active,
+            count: 3,
+            ignorePostId: [
+              blog._id,
+              ...(serviceResultBlogPrevNext.data?.next
+                ? [serviceResultBlogPrevNext.data.next._id]
+                : []),
+              ...(serviceResultBlogPrevNext.data?.prev
+                ? [serviceResultBlogPrevNext.data.prev._id]
+                : []),
+            ],
+          },
+          req.abortController.signal
+        );
 
         if (
           serviceResultBlogsMightLike.status &&

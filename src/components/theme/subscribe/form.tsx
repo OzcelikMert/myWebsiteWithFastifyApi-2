@@ -30,9 +30,9 @@ const ComponentThemeSubscribeForm = React.memo((props: IComponentProps) => {
           />
         </div>
         <div className="col-md-8 mt-2">
-          <ComponentButtonWithLoading 
-            type='submit'
-            className='btn btn-warning'
+          <ComponentButtonWithLoading
+            type="submit"
+            className="btn btn-warning"
             text={props.submitButtonText}
             isLoading={props.form.formState.isSubmitting}
           />

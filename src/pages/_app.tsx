@@ -69,9 +69,12 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
     }
 
     const appState = store.getState().appState;
-    const serviceResultSettings = await SettingService.get({
-      langId: appState.selectedLangId,
-    }, req.abortController.signal);
+    const serviceResultSettings = await SettingService.get(
+      {
+        langId: appState.selectedLangId,
+      },
+      req.abortController.signal
+    );
     if (serviceResultSettings.status && serviceResultSettings.data) {
       store.dispatch(setSettingsState(serviceResultSettings.data));
     }

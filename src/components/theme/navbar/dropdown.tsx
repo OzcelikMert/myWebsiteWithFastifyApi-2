@@ -30,7 +30,7 @@ const ComponentThemeNavbarDropdown = React.memo((props: IComponentProps) => {
           return (
             <ComponentThemeNavbarDropdown
               {...props}
-              items={props.items.filter(nav => nav.parentId != child._id)}
+              items={props.items.filter((nav) => nav.parentId != child._id)}
               key={`navbar-dropdown-${child._id}`}
               children={children}
               item={child}

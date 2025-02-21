@@ -111,7 +111,7 @@ const ComponentThemeNavbar: IComponentWithServerSideProps<IComponentProps> =
             <Navbar.Collapse id="nav">
               <Nav>
                 {navigations.map((item, index) => {
-                  if(item.parentId){
+                  if (item.parentId) {
                     return null;
                   }
 

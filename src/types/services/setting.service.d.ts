@@ -5,7 +5,7 @@ import {
 import { SettingProjectionKeys } from '@constants/settingProjections';
 
 export type ISettingGetResultService = {
-  seoContentAlternates?: ISettingSeoContentAlternateService[]
+  seoContentAlternates?: ISettingSeoContentAlternateService[];
   seoContents?: ISettingSeoContentModel;
 } & Omit<ISettingModel, 'seoContents'>;
 

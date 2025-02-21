@@ -58,11 +58,15 @@ const ComponentForm = React.memo((props: IComponentProps) => {
         }
       >
         {props.children}
-        <div className={props.submitButtonDivClassName ?? ""}>
+        <div className={props.submitButtonDivClassName ?? ''}>
           {props.hideSubmitButton ? null : props.formMethods.formState
               .isSubmitting ? (
             <ComponentButtonLoading
-              text={props.i18?.submitButtonSubmittingText ?? props.i18?.submitButtonText ?? ''}
+              text={
+                props.i18?.submitButtonSubmittingText ??
+                props.i18?.submitButtonText ??
+                ''
+              }
               className={`${props.submitButtonClassName} ${props.submitButtonExtraClassName}`}
             />
           ) : (

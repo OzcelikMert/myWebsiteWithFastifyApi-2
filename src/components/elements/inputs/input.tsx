@@ -33,10 +33,15 @@ const ComponentInput = React.memo(
         </Form.Label>
         <Form.Control ref={ref} {...inputProps} value={props.value as any} />
         {props.hasAnError ? (
-          <Form.Text as="p" className="text-danger fs-6 fw-bold"><i className="mdi mdi-information me-2 fs-4"></i>{props.errorText}</Form.Text>
+          <Form.Text as="p" className="text-danger fs-6 fw-bold">
+            <i className="mdi mdi-information me-2 fs-4"></i>
+            {props.errorText}
+          </Form.Text>
         ) : null}
         {props.mutedText ? (
-          <Form.Text className={`${props.mutedTextClassName ?? "text-muted "}`}>{props.mutedText}</Form.Text>
+          <Form.Text className={`${props.mutedTextClassName ?? 'text-muted '}`}>
+            {props.mutedText}
+          </Form.Text>
         ) : null}
       </Form.Group>
     );
