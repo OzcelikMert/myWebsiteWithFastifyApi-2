@@ -52,10 +52,13 @@ ComponentThemeAuthors.componentServerSideProps = async (
   component.customData = {};
 
   component.customData.authors = (
-    await UserService.getMany({
-      statusId: StatusId.Active,
-      permissions: [PermissionId.BlogAdd, PermissionId.BlogEdit],
-    })
+    await UserService.getMany(
+      {
+        statusId: StatusId.Active,
+        permissions: [PermissionId.BlogAdd, PermissionId.BlogEdit],
+      },
+      req.abortController.signal
+    )
   ).data;
 };
 

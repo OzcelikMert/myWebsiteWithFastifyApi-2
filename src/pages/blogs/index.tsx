@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import { PageSSRUtil } from '@utils/ssr/page.ssr.util';
 import { PageTypeId } from '@constants/pageTypes';
 import ComponentAppLayout from '@components/app/layout';
@@ -10,7 +10,6 @@ import { IPostTermGetResultService } from 'types/services/postTerm.service';
 import { PostService } from '@services/post.service';
 import { IPostGetManyResultService } from 'types/services/post.service';
 import ComponentBlog from '@components/elements/blog';
-import ComponentLoadingButton from '@components/elements/button/withLoading';
 import { UserService } from '@services/user.service';
 import { IUserGetResultService } from 'types/services/user.service';
 import { EndPoints } from '@constants/endPoints';
@@ -18,15 +17,53 @@ import { wrapper } from '@redux/store';
 import { useAppSelector } from '@redux/hooks';
 import { selectTranslation } from '@redux/features/translationSlice';
 import { setQueriesState } from '@redux/features/pageSlice';
-import ComponentButtonWithSearch from '@components/elements/button/withSearch';
 import { UrlUtil } from '@utils/url.util';
+import ComponentPageBlogsHeaderButtons from '@components/pages/blogs/headerButtons';
+import ComponentButtonWithLoading from '@components/elements/button/withLoading';
+import { IActionWithPayload } from 'types/hooks';
 
 const perPageBlogCount = 9;
 
 type IComponentState = {
   blogs: IPostGetManyResultService[];
-  isActiveShowMoreButton: boolean;
+  hideShowMoreButton: boolean;
   pageNumber: number;
+};
+
+const initialState: IComponentState = {
+  blogs: [],
+  hideShowMoreButton: false,
+  pageNumber: 1,
+};
+
+enum ActionTypes {
+  SET_BLOGS,
+  SET_HIDE_SHOW_MORE_BUTTON,
+  SET_PAGE_NUMBER,
+}
+
+type IAction =
+  | IActionWithPayload<ActionTypes.SET_BLOGS, IComponentState['blogs']>
+  | IActionWithPayload<
+      ActionTypes.SET_HIDE_SHOW_MORE_BUTTON,
+      IComponentState['hideShowMoreButton']
+    >
+  | IActionWithPayload<
+      ActionTypes.SET_PAGE_NUMBER,
+      IComponentState['pageNumber']
+    >;
+
+const reducer = (state: IComponentState, action: IAction): IComponentState => {
+  switch (action.type) {
+    case ActionTypes.SET_BLOGS:
+      return { ...state, blogs: action.payload };
+    case ActionTypes.SET_HIDE_SHOW_MORE_BUTTON:
+      return { ...state, hideShowMoreButton: action.payload };
+    case ActionTypes.SET_PAGE_NUMBER:
+      return { ...state, pageNumber: action.payload };
+    default:
+      return state;
+  }
 };
 
 type IPageQueries = {
@@ -43,26 +80,23 @@ type IPageQueries = {
 };
 
 export default function PageBlogs() {
+  const abortControllerRef = React.useRef(new AbortController());
+
   const queries = useAppSelector(
     (state) => state.pageState.queries as IPageQueries
   );
 
-  const [pageNumber, setPageNumber] = useState<IComponentState['pageNumber']>(
-    queries.params.page || 1
-  );
-  const [blogs, setBlogs] = useState<IComponentState['blogs']>(
-    queries.blogs ?? []
-  );
-  const [isActiveShowMoreButton, setIsActiveShowMoreButton] = useState<
-    IComponentState['isActiveShowMoreButton']
-  >(queries.maxBlogCount > blogs.length);
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    pageNumber: queries.params.page || 1,
+    blogs: queries.blogs ?? [],
+    hideShowMoreButton: queries.maxBlogCount <= (queries.blogs ?? []).length,
+  });
 
   const page = useAppSelector((state) => state.pageState.page);
   const appState = useAppSelector((state) => state.appState);
 
   const t = useAppSelector(selectTranslation);
-
-  const MemoizedComponentBlog = React.memo(ComponentBlog);
 
   const getPageTitle = () => {
     let title: string = '';
@@ -89,60 +123,29 @@ export default function PageBlogs() {
   };
 
   const onClickShowMore = async () => {
-    if (isActiveShowMoreButton) return false;
-    const newPageNumber = pageNumber + 1;
-    const serviceResult = await PostService.getMany({
-      langId: appState.selectedLangId,
-      typeId: [PostTypeId.Blog],
-      statusId: StatusId.Active,
-      count: perPageBlogCount,
-      page: pageNumber,
-      ...(queries.category ? { categories: [queries.category._id] } : {}),
-      ...(queries.params.search ? { title: queries.params.search } : {}),
-    });
+    if (state.hideShowMoreButton) return;
+    const newPageNumber = state.pageNumber + 1;
+    const serviceResult = await PostService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: [PostTypeId.Blog],
+        statusId: StatusId.Active,
+        count: perPageBlogCount,
+        page: state.pageNumber,
+        ...(queries.category ? { categories: [queries.category._id] } : {}),
+        ...(queries.params.search ? { title: queries.params.search } : {}),
+      },
+      abortControllerRef.current.signal
+    );
     if (serviceResult.status && serviceResult.data) {
-      setPageNumber(newPageNumber);
-      const newBlogs = [...blogs, ...(serviceResult.data ?? [])];
-      setBlogs(newBlogs);
-      setIsActiveShowMoreButton(queries.maxBlogCount > newBlogs.length);
+      dispatch({ type: ActionTypes.SET_PAGE_NUMBER, payload: newPageNumber });
+      const newBlogs = [...state.blogs, ...(serviceResult.data ?? [])];
+      dispatch({ type: ActionTypes.SET_BLOGS, payload: newBlogs });
+      dispatch({
+        type: ActionTypes.SET_HIDE_SHOW_MORE_BUTTON,
+        payload: queries.maxBlogCount <= newBlogs.length,
+      });
     }
-  };
-
-  const AuthorSocialMedia = () => {
-    const author = queries.author;
-    return (
-      <div>
-        <a className="me-4 fs-3 text-light" href={author?.facebook || '#'}>
-          <span>
-            <i className="mdi mdi-facebook"></i>
-          </span>
-        </a>
-        <a className="me-4 fs-3 text-light" href={author?.instagram || '#'}>
-          <span>
-            <i className="mdi mdi-instagram"></i>
-          </span>
-        </a>
-        <a className="fs-3 text-light" href={author?.twitter || '#'}>
-          <span>
-            <i className="mdi mdi-twitter"></i>
-          </span>
-        </a>
-      </div>
-    );
-  };
-
-  const HeaderButtom = () => {
-    return (
-      <div className="align-center">
-        {queries.author ? <AuthorSocialMedia /> : undefined}
-        <div className="mt-2">
-          <ComponentSearchButton
-            placeHolder={t('search')}
-            onSearch={(searchText) => onSearch(searchText)}
-          />
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -152,7 +155,12 @@ export default function PageBlogs() {
       headerContent={
         queries.category?.contents?.shortContent || queries.author?.comment
       }
-      headerButtons={<HeaderButtom />}
+      headerButtons={
+        <ComponentPageBlogsHeaderButtons
+          author={queries.author ?? undefined}
+          onSearch={(text) => onSearch(text)}
+        />
+      }
     >
       <div className="page page-blogs">
         <section className="page-blogs">
@@ -165,8 +173,9 @@ export default function PageBlogs() {
                 )}
               </h5>
               <div className="row">
-                {blogs.map((item, index) => (
-                  <MemoizedComponentBlog
+                {state.blogs.map((item, index) => (
+                  <ComponentBlog
+                    key={`blog-${item._id}`}
                     className={`col-md-4 mt-4`}
                     item={item}
                     index={index}
@@ -175,12 +184,12 @@ export default function PageBlogs() {
               </div>
             </div>
             <div className="w-100 pt-5 text-center show-more">
-              {isActiveShowMoreButton ? (
-                <ComponentLoadingButton
+              {state.hideShowMoreButton ? null : (
+                <ComponentButtonWithLoading
                   text={t('showMore')}
                   onClick={() => onClickShowMore()}
                 />
-              ) : null}
+              )}
             </div>
           </div>
         </section>
@@ -231,35 +240,44 @@ export const getServerSideProps = wrapper.getServerSideProps(
     if (pageState.page) {
       let categoryId = '';
       if (categoryURL.length > 0) {
-        const serviceResultCategory = await PostTermService.getWithURL({
-          typeId: PostTermTypeId.Category,
-          postTypeId: PostTypeId.Blog,
-          langId: appState.selectedLangId,
-          statusId: StatusId.Active,
-          url: categoryURL,
-        });
+        const serviceResultCategory = await PostTermService.getWithURL(
+          {
+            typeId: PostTermTypeId.Category,
+            postTypeId: PostTypeId.Blog,
+            langId: appState.selectedLangId,
+            statusId: StatusId.Active,
+            url: categoryURL,
+          },
+          req.abortController.signal
+        );
 
         if (serviceResultCategory.status && serviceResultCategory.data) {
           const category = serviceResultCategory.data;
           queries.category = category;
           categoryId = category._id;
 
-          await PostTermService.updateViewWithId({
-            _id: category._id,
-            typeId: category.typeId,
-            postTypeId: category.postTypeId,
-            langId: appState.selectedLangId,
-            url: EndPoints.BLOGS_WITH.CATEGORY(categoryURL),
-          });
+          await PostTermService.updateViewWithId(
+            {
+              _id: category._id,
+              typeId: category.typeId,
+              postTypeId: category.postTypeId,
+              langId: appState.selectedLangId,
+              url: EndPoints.BLOGS_WITH.CATEGORY(categoryURL),
+            },
+            req.abortController.signal
+          );
         }
       }
 
       let authorId = '';
       if (authorURL) {
-        const serviceResultAuthor = await UserService.getWithURL({
-          statusId: StatusId.Active,
-          url: authorURL,
-        });
+        const serviceResultAuthor = await UserService.getWithURL(
+          {
+            statusId: StatusId.Active,
+            url: authorURL,
+          },
+          req.abortController.signal
+        );
 
         if (serviceResultAuthor.status && serviceResultAuthor.data) {
           const author = serviceResultAuthor.data;
@@ -268,29 +286,35 @@ export const getServerSideProps = wrapper.getServerSideProps(
         }
       }
 
-      const serviceResultBlogs = await PostService.getMany({
-        langId: appState.selectedLangId,
-        typeId: [PostTypeId.Blog],
-        statusId: StatusId.Active,
-        count: perPageBlogCount,
-        page: page,
-        ...(search ? { title: search } : {}),
-        ...(categoryId ? { categories: [categoryId] } : {}),
-        ...(authorId ? { authorId: authorId } : {}),
-      });
+      const serviceResultBlogs = await PostService.getMany(
+        {
+          langId: appState.selectedLangId,
+          typeId: [PostTypeId.Blog],
+          statusId: StatusId.Active,
+          count: perPageBlogCount,
+          page: page,
+          ...(search ? { title: search } : {}),
+          ...(categoryId ? { categories: [categoryId] } : {}),
+          ...(authorId ? { authorId: authorId } : {}),
+        },
+        req.abortController.signal
+      );
 
       if (serviceResultBlogs.status && serviceResultBlogs.data) {
         const blogs = serviceResultBlogs.data;
         queries.blogs = blogs;
       }
 
-      const serviceResultMaxBlogCount = await PostService.getCount({
-        typeId: PostTypeId.Blog,
-        statusId: StatusId.Active,
-        ...(search ? { title: search } : {}),
-        ...(categoryId ? { categories: [categoryId] } : {}),
-        ...(authorId ? { authorId: authorId } : {}),
-      });
+      const serviceResultMaxBlogCount = await PostService.getCount(
+        {
+          typeId: PostTypeId.Blog,
+          statusId: StatusId.Active,
+          ...(search ? { title: search } : {}),
+          ...(categoryId ? { categories: [categoryId] } : {}),
+          ...(authorId ? { authorId: authorId } : {}),
+        },
+        req.abortController.signal
+      );
 
       if (serviceResultMaxBlogCount.status && serviceResultMaxBlogCount.data) {
         queries.maxBlogCount = serviceResultMaxBlogCount.data;

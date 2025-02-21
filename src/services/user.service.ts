@@ -7,19 +7,24 @@ import {
 import { ApiRequest } from '@library/api/request';
 import { PathUtil } from '@utils/path.util';
 
-const getWithURL = (params: IUserGetWithURLParamService) => {
+const getWithURL = (
+  params: IUserGetWithURLParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.USER_WITH.GET_WITH_URL(params.url),
     data: params,
+    signal,
   }).get<IUserGetResultService>();
 };
 
-const getMany = (params: IUserGetManyParamService) => {
+const getMany = (params: IUserGetManyParamService, signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.USER_WITH.GET,
     data: params,
+    signal,
   }).get<IUserGetResultService[]>();
 };
 

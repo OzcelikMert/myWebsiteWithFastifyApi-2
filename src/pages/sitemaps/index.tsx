@@ -21,10 +21,13 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const typeId = PostUtil.getTypeId(typeName.toCapitalizeCase());
     const page = Number(context.query?.page ?? 1);
 
-    const serviceResult = await SitemapService.getPost({
-      typeId: typeId,
-      page: page,
-    });
+    const serviceResult = await SitemapService.getPost(
+      {
+        typeId: typeId,
+        page: page,
+      },
+      req.abortController.signal
+    );
 
     if (serviceResult.status && serviceResult.data) {
       const sitemapData: SitemapFileDocument = {

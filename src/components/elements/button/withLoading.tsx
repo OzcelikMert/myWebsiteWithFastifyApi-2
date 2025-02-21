@@ -2,7 +2,7 @@ import { useFormReducer } from '@library/react/handles/form';
 import { VariableLibrary } from '@library/variable';
 import React, { useState } from 'react';
 import ComponentButtonLoading from './loading';
-import ComponentButton from '.';
+import ComponentButton, { IComponentButtonProps } from '.';
 
 type IComponentState = {
   isLoading: boolean;
@@ -13,11 +13,8 @@ const initialState: IComponentState = {
 };
 
 type IComponentProps = {
-  text?: string;
-  className?: string;
-  extraClassName?: string;
-  onClick?: () => Promise<void>;
-};
+  isLoading?: boolean;
+} & IComponentButtonProps;
 
 const ComponentButtonWithLoading = React.memo((props: IComponentProps) => {
   const [isLoading, setIsLoading] = useState(initialState.isLoading);
@@ -30,13 +27,16 @@ const ComponentButtonWithLoading = React.memo((props: IComponentProps) => {
     setIsLoading(false);
   };
 
-  return isLoading ? (
+  const checkIsLoading = () => {
+    return typeof props.isLoading !== 'undefined' ? props.isLoading : isLoading;
+  };
+
+  return checkIsLoading() ? (
     <ComponentButtonLoading text={props.text} className={props.className} />
   ) : (
     <ComponentButton
       text={props.text}
       className={props.className}
-      disabled={isLoading}
       extraClassName={props.extraClassName}
       onClick={() => onClick()}
     />

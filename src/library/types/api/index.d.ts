@@ -4,6 +4,7 @@ export interface IApiRequestParam {
   data?: object;
   processData?: boolean;
   contentType?: string | false;
+  signal?: AbortSignal;
   onUploadProgress?: (e: any, percent: number) => void;
 }
 

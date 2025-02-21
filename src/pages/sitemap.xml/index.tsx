@@ -16,7 +16,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const url = store.getState().appState.url;
 
-    const serviceResult = await SitemapService.getMaps();
+    const serviceResult = await SitemapService.getMaps(
+      req.abortController.signal
+    );
 
     if (serviceResult.status && serviceResult.data) {
       const sitemapData: ISitemapFileIndex = {

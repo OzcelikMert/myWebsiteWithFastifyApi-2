@@ -8,27 +8,39 @@ import {
   IComponentGetWithIdParamService,
 } from 'types/services/component.service';
 
-const getWithId = (params: IComponentGetWithIdParamService) => {
+const getWithId = (
+  params: IComponentGetWithIdParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.COMPONENT_WITH.GET_WITH_ID(params._id),
     data: params,
+    signal,
   }).get<IComponentGetResultService>();
 };
 
-const getWithKey = (params: IComponentGetWithKeyParamService) => {
+const getWithKey = (
+  params: IComponentGetWithKeyParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.COMPONENT_WITH.GET_WITH_KEY(params.key),
     data: params,
+    signal,
   }).get<IComponentGetResultService>();
 };
 
-const getMany = (params: IComponentGetManyParamService) => {
+const getMany = (
+  params: IComponentGetManyParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.COMPONENT_WITH.GET,
     data: params,
+    signal,
   }).get<IComponentGetResultService[]>();
 };
 

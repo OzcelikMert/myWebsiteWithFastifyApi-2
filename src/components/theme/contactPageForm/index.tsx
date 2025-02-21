@@ -1,7 +1,5 @@
-import React, { FormEvent, useReducer, useState } from 'react';
+import React, { useReducer } from 'react';
 import { IComponentGetResultService } from 'types/services/component.service';
-import { VariableLibrary } from '@library/variable';
-import { Form } from 'react-bootstrap';
 import { MailerService } from '@services/mailer.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HelperUtil } from '@utils/helper.util';
@@ -10,8 +8,6 @@ import { IActionWithPayload } from 'types/hooks';
 import { useForm } from 'react-hook-form';
 import { MailerSchema } from 'schemas/mailer.schema';
 import ComponentForm from '@components/elements/form';
-import { useAppSelector } from '@redux/hooks';
-import { selectTranslation } from '@redux/features/translationSlice';
 import ComponentFormInput from '@components/elements/form/inputs/input';
 
 type IComponentState = {
@@ -96,11 +92,14 @@ const ComponentThemeContactPageForm: IComponentWithServerSideProps<IComponentPro
     const onSubmit = async (data: IComponentFormState) => {
       const params = data;
 
-      const serviceResult = await MailerService.send({
-        email: params.email,
-        message: getMailMessage(),
-        key: props.component.key,
-      });
+      const serviceResult = await MailerService.send(
+        {
+          email: params.email,
+          message: getMailMessage(),
+          key: props.component.key,
+        },
+        abortControllerRef.current.signal
+      );
 
       if (serviceResult.status) {
         dispatch({ type: ActionTypes.SET_SUCCESSFUL, payload: true });
@@ -152,7 +151,7 @@ const ComponentThemeContactPageForm: IComponentWithServerSideProps<IComponentPro
                   }
                 />
                 <ComponentFormInput
-                  name="messageInput"
+                  name="message"
                   as="textarea"
                   title={componentElementContents('message')?.content}
                   placeholder={
@@ -166,3 +165,5 @@ const ComponentThemeContactPageForm: IComponentWithServerSideProps<IComponentPro
       </section>
     );
   });
+
+export default ComponentThemeContactPageForm;

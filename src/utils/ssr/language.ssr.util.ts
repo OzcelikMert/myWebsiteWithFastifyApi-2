@@ -20,7 +20,12 @@ const init = async (
 ) => {
   // Get all languages
   const languages =
-    (await LanguageService.getMany({ statusId: StatusId.Active })).data ?? [];
+    (
+      await LanguageService.getMany(
+        { statusId: StatusId.Active },
+        req.abortController.signal
+      )
+    ).data ?? [];
 
   // Find default language
   const foundDefaultLanguage = languages.findSingle('isDefault', true);

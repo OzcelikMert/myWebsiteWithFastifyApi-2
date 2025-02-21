@@ -46,6 +46,7 @@ export class ApiRequest {
       const init: RequestInit = {
         method: method,
         headers: { 'Content-Type': 'application/json;charset=utf-8' },
+        signal: this.params.signal
       };
 
       if (init.method === 'GET') {

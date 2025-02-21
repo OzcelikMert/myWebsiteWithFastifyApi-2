@@ -7,34 +7,44 @@ import {
 import { ApiRequest } from '@library/api/request';
 import { PathUtil } from '@utils/path.util';
 
-const getWithId = (params: ILanguageGetWithIdParamService) => {
+const getWithId = (
+  params: ILanguageGetWithIdParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.LANGUAGE_WITH.GET_WITH_ID(params._id),
     data: params,
+    signal,
   }).get<ILanguageGetResultService>();
 };
 
-const getDefault = () => {
+const getDefault = (signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.LANGUAGE_WITH.GET_DEFAULT,
+    signal,
   }).get<ILanguageGetResultService>();
 };
 
-const getMany = (params: ILanguageGetManyParamService) => {
+const getMany = (
+  params: ILanguageGetManyParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.LANGUAGE_WITH.GET,
     data: params,
+    signal,
   }).get<ILanguageGetResultService[]>();
 };
 
-const getFlags = (params: {}) => {
+const getFlags = (params: {}, signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.LANGUAGE_WITH.GET_FLAGS,
     data: params,
+    signal,
   }).get<string[]>();
 };
 

@@ -61,7 +61,8 @@ export type IPostGetManyResultService = {} & IPostGetResultService;
 export interface IPostGetPrevNextResultService {
   _id: string;
   contents?: IPostContentModel;
-  createdAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IPostGetWithURLParamService {

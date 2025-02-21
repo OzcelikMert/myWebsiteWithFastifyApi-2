@@ -1,6 +1,6 @@
 import React from 'react';
 
-type IComponentProps = {
+export type IComponentButtonProps = {
   text?: string;
   type?: "submit" | "button" | "reset"
   className?: string;
@@ -9,11 +9,11 @@ type IComponentProps = {
   onClick?: () => Promise<void>;
 };
 
-const ComponentButton = React.memo((props: IComponentProps) => {
+const ComponentButton = React.memo((props: IComponentButtonProps) => {
   return (
     <button
       type={props.type ?? 'button'}
-      className={`${(props.className) ?? 'btn btn-outline-primary'} ${props.extraClassName ?? ''}`}
+      className={`${(props.className) ?? 'btn btn-outline-primary px-5'} ${props.extraClassName ?? ''}`}
       disabled={props.disabled}
       onClick={props.onClick}
     >

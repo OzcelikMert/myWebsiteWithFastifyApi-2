@@ -205,33 +205,42 @@ ComponentThemeFooter.componentServerSideProps = async (
 
   component.customData.navigations =
     (
-      await NavigationService.getMany({
-        langId: appState.selectedLangId,
-        statusId: StatusId.Active,
-        isSecondary: true,
-      })
+      await NavigationService.getMany(
+        {
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+          isSecondary: true,
+        },
+        req.abortController.signal
+      )
     ).data ?? [];
 
   component.customData.hotBlogs =
     (
-      await PostService.getMany({
-        langId: appState.selectedLangId,
-        statusId: StatusId.Active,
-        typeId: [PostTypeId.Blog],
-        sortTypeId: PostSortTypeId.Newest,
-        count: 4,
-      })
+      await PostService.getMany(
+        {
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+          typeId: [PostTypeId.Blog],
+          sortTypeId: PostSortTypeId.Newest,
+          count: 4,
+        },
+        req.abortController.signal
+      )
     ).data ?? [];
 
   component.customData.hitBlogs =
     (
-      await PostService.getMany({
-        langId: appState.selectedLangId,
-        statusId: StatusId.Active,
-        typeId: [PostTypeId.Blog],
-        sortTypeId: PostSortTypeId.MostPopular,
-        count: 4,
-      })
+      await PostService.getMany(
+        {
+          langId: appState.selectedLangId,
+          statusId: StatusId.Active,
+          typeId: [PostTypeId.Blog],
+          sortTypeId: PostSortTypeId.MostPopular,
+          count: 4,
+        },
+        req.abortController.signal
+      )
     ).data ?? [];
 };
 

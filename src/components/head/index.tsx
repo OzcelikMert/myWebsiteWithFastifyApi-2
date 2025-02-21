@@ -6,40 +6,51 @@ import { UrlUtil } from '@utils/url.util';
 import HTMLReactParser from 'html-react-parser';
 import { useAppSelector } from '@redux/hooks';
 import { IPostAlternateService } from 'types/services/post.service';
+import { IAppState } from '@redux/features/appSlice';
 
-const Alternate = React.memo((props: IPostAlternateService) => {
-  const appState = useAppSelector((state) => state.appState);
+const Alternate = React.memo(
+  (props: { item: IPostAlternateService; appState: IAppState }) => {
+    // const appState = useAppSelector((state) => state.appState);
 
-  const language = appState.languages.findSingle('_id', props.langId);
-  if (language) {
-    const langCode = LanguageUtil.getCode(language);
-    return (
-      <link
-        rel={`alternate_${langCode}`}
-        hrefLang={langCode}
-        href={UrlUtil.replaceLanguageCode({
-          url: appState.url,
-          newLanguage: language,
-          withBase: true,
-        })}
-      />
+    const language = props.appState.languages.findSingle(
+      '_id',
+      props.item.langId
     );
-  } else {
-    return null;
+    if (language) {
+      const langCode = LanguageUtil.getCode(language);
+      return (
+        <link
+          rel={`alternate_${langCode}`}
+          hrefLang={langCode}
+          href={UrlUtil.replaceLanguageCode({
+            url: props.appState.url,
+            newLanguage: language,
+            withBase: true,
+          })}
+        />
+      );
+    } else {
+      return null;
+    }
   }
-});
+);
 
-const FacebookAlternate = React.memo((props: IPostAlternateService) => {
-  const appState = useAppSelector((state) => state.appState);
+const FacebookAlternate = React.memo(
+  (props: { item: IPostAlternateService; appState: IAppState }) => {
+    //const appState = useAppSelector((state) => state.appState);
 
-  const language = appState.languages.findSingle('_id', props.langId);
-  if (language) {
-    const langCode = LanguageUtil.getCode(language, '_', true);
-    return <meta property="og:locale:alternate" content={langCode} />;
-  } else {
-    return null;
+    const language = props.appState.languages.findSingle(
+      '_id',
+      props.item.langId
+    );
+    if (language) {
+      const langCode = LanguageUtil.getCode(language, '_', true);
+      return <meta property="og:locale:alternate" content={langCode} />;
+    } else {
+      return null;
+    }
   }
-});
+);
 
 type IComponentProps = {
   title?: string;
@@ -51,12 +62,13 @@ const ComponentHead = React.memo((props: IComponentProps) => {
 
   const getTitle = () => {
     const defaultTitle = appState.settings.seoContents?.title;
+    let title = defaultTitle;
     if (props.title) {
-      props.title = `${defaultTitle} | ${props.title}`;
+      title = `${defaultTitle} | ${props.title}`;
     } else if (page) {
-      props.title = `${defaultTitle} | ${page.contents?.title}`;
+      title = `${defaultTitle} | ${page.contents?.title}`;
     }
-    return props.title;
+    return title;
   };
 
   const getKeywords = () => {
@@ -113,7 +125,11 @@ const ComponentHead = React.memo((props: IComponentProps) => {
       <meta key="author" name="author" content="Özçelik Software" />
       <meta key="keywords" name="keywords" content={getKeywords()} />
       {page?.alternates?.map((item) => (
-        <Alternate key={`alternate-${item.langId}`} {...item} />
+        <Alternate
+          key={`alternate-${item.langId}`}
+          item={item}
+          appState={appState}
+        />
       ))}
 
       <meta key="name" itemProp="name" content={pageTitle} />
@@ -134,7 +150,8 @@ const ComponentHead = React.memo((props: IComponentProps) => {
       {page?.alternates?.map((item) => (
         <FacebookAlternate
           key={`facebook-alternate-${item.langId}`}
-          {...item}
+          item={item}
+          appState={appState}
         />
       ))}
       <meta

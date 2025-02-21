@@ -8,9 +8,7 @@ import ComponentCategory from '@components/elements/category';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { IComponentGetResultService } from 'types/services/component.service';
 import { HelperUtil } from '@utils/helper.util';
-import {
-  IComponentWithServerSideProps,
-} from 'types/components/ssr';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 
 type IComponentState = {
   selectedId: string;
@@ -100,13 +98,16 @@ ComponentThemeHotCategories.componentServerSideProps = async (
   const { appState } = store.getState();
 
   component.customData.categories = (
-    await PostTermService.getMany({
-      langId: appState.selectedLangId,
-      typeId: [PostTermTypeId.Category],
-      postTypeId: PostTypeId.Blog,
-      statusId: StatusId.Active,
-      count: 5,
-    })
+    await PostTermService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: [PostTermTypeId.Category],
+        postTypeId: PostTypeId.Blog,
+        statusId: StatusId.Active,
+        count: 5,
+      },
+      req.abortController.signal
+    )
   ).data;
 };
 

@@ -9,27 +9,36 @@ import { ApiRequest } from '@library/api/request';
 import { PathUtil } from '@utils/path.util';
 import { ISubscriberModel } from 'types/models/subscriber.model';
 
-const getWithEmail = (params: ISubscriberGetWithEmailParamService) => {
+const getWithEmail = (
+  params: ISubscriberGetWithEmailParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SUBSCRIBER_WITH.GET_WITH_EMAIL(params.email),
     data: params,
+    signal,
   }).get<ISubscriberGetResultService>();
 };
 
-const add = (params: ISubscriberAddParamService) => {
+const add = (params: ISubscriberAddParamService, signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SUBSCRIBER_WITH.ADD,
     data: params,
+    signal,
   }).post<ISubscriberModel>();
 };
 
-const deleteWithEmail = (params: ISubscriberDeleteWithEmailParamService) => {
+const deleteWithEmail = (
+  params: ISubscriberDeleteWithEmailParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SUBSCRIBER_WITH.DELETE_WITH_EMAIL(params.email),
     data: params,
+    signal,
   }).delete();
 };
 

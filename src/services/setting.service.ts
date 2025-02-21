@@ -6,11 +6,12 @@ import {
 import { PathUtil } from '@utils/path.util';
 import { ApiRequest } from '@library/api/request';
 
-const get = (params: ISettingGetParamService) => {
+const get = (params: ISettingGetParamService, signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SETTING_WITH.GET,
     data: params,
+    signal,
   }).get<ISettingGetResultService>();
 };
 

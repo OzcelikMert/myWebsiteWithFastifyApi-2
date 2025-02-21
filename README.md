@@ -2,4 +2,3 @@
 My Website Theme 2 Using NextJS, Redux and Functional Component For Fastify API
 
 Things to do:
-    - add abort controller for services

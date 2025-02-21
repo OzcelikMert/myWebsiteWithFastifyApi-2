@@ -9,19 +9,17 @@ import {
 } from 'types/services/post.service';
 import HTMLReactParser from 'html-react-parser';
 import ComponentAppLayout from '@components/app/layout';
-import { IPostTermPopulateService } from 'types/services/postTerm.service';
-import { UrlUtil } from '@utils/url.util';
-import { EndPoints } from '@constants/endPoints';
-import { IUserPopulateService } from 'types/services/user.service';
-import Image from 'next/image';
-import { ImageSourceUtil } from '@utils/imageSource.util';
-import { DateMask } from '@library/variable/date';
 import ComponentBlog from '@components/elements/blog';
 import { useAppSelector } from '@redux/hooks';
 import { wrapper } from '@redux/store';
 import { setPageState, setQueriesState } from '@redux/features/pageSlice';
 import { selectTranslation } from '@redux/features/translationSlice';
 import { VariableLibrary } from '@library/variable';
+import ComponentPageBlogAuthor from '@components/pages/blog/author';
+import ComponentPageBlogCategory from '@components/pages/blog/category';
+import ComponentPageBlogPrevBlog from '@components/pages/blog/prevBlog';
+import ComponentPageBlogNextBlog from '@components/pages/blog/nextBlog';
+import ComponentPageBlogHeaderButtons from '@components/pages/blog/headerButtons';
 
 type IPageQueries = {
   blog: IPostGetResultService | null;
@@ -32,7 +30,6 @@ type IPageQueries = {
 };
 
 export default function PageBlogURL() {
-  const appState = useAppSelector((state) => state.appState);
   const queries = useAppSelector(
     (state) => state.pageState.queries as IPageQueries
   );
@@ -50,204 +47,6 @@ export default function PageBlogURL() {
     });
   };
 
-  const HeaderBottom = () => {
-    return (
-      <div className="align-center fs-5">
-        <span className="text-light mt-1 mx-4">
-          {queries.blog?.views || 1}{' '}
-          <i className="text-primary mdi mdi-eye fs-4"></i>
-        </span>
-        <span
-          className="text-light mt-1 mx-4"
-          role="button"
-          onClick={() => onClickShare()}
-        >
-          <i className="text-warning mdi mdi-share-variant fs-4"></i>
-        </span>
-      </div>
-    );
-  };
-
-  const Author = (props: IUserPopulateService, index: number) => {
-    const date = new Date(blog?.createdAt ?? '');
-    const authorURL = UrlUtil.createHref({
-      url: appState.url,
-      targetPath: EndPoints.BLOGS_WITH.AUTHOR(props.url),
-    });
-
-    return (
-      <div className="author mt-2">
-        <div className="row">
-          <div className="col-8 d-flex flex-row align-items-center">
-            <div className="avatar d-inline-block me-3">
-              <a href={authorURL} className="hover-top">
-                <Image
-                  src={ImageSourceUtil.getUploadedImageSrc(props.image)}
-                  alt={props.name}
-                  className="img-fluid"
-                  width={40}
-                  height={40}
-                />
-              </a>
-            </div>
-            <div className="d-inline-block">
-              <div className="author">
-                {t('by')}{' '}
-                <a href={authorURL}>
-                  <span>{props.name}</span>
-                </a>
-              </div>
-              <div className="date">
-                <time dateTime={date.getStringWithMask(DateMask.DATE)}>
-                  <span>{date.toDateString()}</span>
-                </time>
-              </div>
-            </div>
-          </div>
-          <div className="col-4 text-end fs-4">
-            <a className="me-2" href={props.facebook || '#'}>
-              <span>
-                <i className="mdi mdi-facebook"></i>
-              </span>
-            </a>
-            <a className="me-2" href={props.instagram || '#'}>
-              <span>
-                <i className="mdi mdi-instagram"></i>
-              </span>
-            </a>
-            <a href={props.twitter || '#'}>
-              <span>
-                <i className="mdi mdi-twitter"></i>
-              </span>
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const Category = (props: IPostTermPopulateService, index: number) => {
-    const categoryURL = UrlUtil.createHref({
-      url: appState.url,
-      targetPath: EndPoints.BLOGS_WITH.CATEGORY(props.contents.url),
-    });
-
-    return (
-      <a href={categoryURL} className="btn btn-light">
-        {' '}
-        <span>{props.contents.title}</span>
-      </a>
-    );
-  };
-
-  const Blog = () => {
-    return (
-      <article title={blog?.contents?.title}>
-        <div className="content">
-          {blog?.contents?.content
-            ? HTMLReactParser(blog?.contents?.content || '')
-            : null}
-        </div>
-        <div className="content-bottom mt-5">
-          <div className="categories pb-3 border-bottom">
-            <h6 className="fw-bold">{t('categories')}</h6>
-            <div className="blog-category-badges">
-              {blog?.categories?.map((category, index) =>
-                Category(category, index)
-              )}
-            </div>
-          </div>
-          <div className="authors mt-3">
-            <h6 className="fw-bold">{'authors'}</h6>
-            {blog
-              ? [blog.author, ...(blog.authors ?? [])].map(
-                  (author, index) => author && Author(author, index)
-                )
-              : null}
-          </div>
-        </div>
-      </article>
-    );
-  };
-
-  const PrevBlog = () => {
-    const prevBlogURL = UrlUtil.createHref({
-      url: appState.url,
-      targetPath: EndPoints.BLOG_WITH.URL(prevBlog?.contents?.url),
-    });
-    const date = new Date(prevBlog?.createdAt ?? '');
-    return (
-      <article className="prev-blog" title={prevBlog?.contents?.title}>
-        <div className="card">
-          <div className="card-body d-flex flex-row">
-            <div className="image hover-top">
-              <a href={prevBlogURL} className="img-link">
-                <Image
-                  src={ImageSourceUtil.getUploadedImageSrc(
-                    prevBlog?.contents?.image
-                  )}
-                  alt={prevBlog?.contents?.title ?? ''}
-                  className="img-fluid rounded-4"
-                  width={150}
-                  height={150}
-                />
-              </a>
-            </div>
-            <div className="ms-3 align-content-center">
-              <a href={prevBlogURL} className="fw-bold fs-4">
-                <span>{prevBlog?.contents?.title}</span>
-              </a>
-              <div className="date">
-                <time dateTime={date.getStringWithMask(DateMask.DATE)}>
-                  <span>{date.toDateString()}</span>
-                </time>
-              </div>
-            </div>
-          </div>
-        </div>
-      </article>
-    );
-  };
-
-  const NextBlog = () => {
-    const nextBlogURL = UrlUtil.createHref({
-      url: appState.url,
-      targetPath: EndPoints.BLOG_WITH.URL(nextBlog?.contents?.url),
-    });
-    const date = new Date(nextBlog?.createdAt ?? '');
-    return (
-      <article className="next-blog" title={nextBlog?.contents?.title}>
-        <div className="card">
-          <div className="card-body d-flex flex-row justify-content-end">
-            <div className="align-content-center me-3">
-              <a href={nextBlogURL} className="fw-bold fs-4">
-                <span>{nextBlog?.contents?.title}</span>
-              </a>
-              <div className="date">
-                <time dateTime={date.getStringWithMask(DateMask.DATE)}>
-                  <span>{date.toDateString()}</span>
-                </time>
-              </div>
-            </div>
-            <div className="image hover-top">
-              <a href={nextBlogURL} className="img-link">
-                <Image
-                  src={ImageSourceUtil.getUploadedImageSrc(
-                    nextBlog?.contents?.image
-                  )}
-                  alt={nextBlog?.contents?.title ?? ''}
-                  className="img-fluid rounded-4"
-                  width={150}
-                  height={150}
-                />
-              </a>
-            </div>
-          </div>
-        </div>
-      </article>
-    );
-  };
-
   const title = blog?.contents?.title || '404';
 
   return (
@@ -255,12 +54,53 @@ export default function PageBlogURL() {
       pageTitle={`${t('blog')} - ${title}`}
       headerBgImage={blog?.contents?.image}
       headerContent={blog?.contents?.shortContent}
-      headerButtons={blog ? HeaderBottom() : undefined}
+      headerButtons={
+        blog ? (
+          <ComponentPageBlogHeaderButtons
+            views={blog?.views ?? 1}
+            onClickShare={() => onClickShare()}
+          />
+        ) : undefined
+      }
     >
       <div className="page page-blog">
         <section className="blog-section">
           <div className="container">
-            {blog ? <Blog /> : null}
+            <article title={blog?.contents?.title}>
+              <div className="content">
+                {blog?.contents?.content
+                  ? HTMLReactParser(blog?.contents?.content || '')
+                  : null}
+              </div>
+              <div className="content-bottom mt-5">
+                <div className="categories pb-3 border-bottom">
+                  <h6 className="fw-bold">{t('categories')}</h6>
+                  <div className="blog-category-badges">
+                    {blog?.categories?.map((category, index) => (
+                      <ComponentPageBlogCategory
+                        key={`blog-category-${category._id}`}
+                        item={category}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="authors mt-3">
+                  <h6 className="fw-bold">{'authors'}</h6>
+                  {[blog?.author, ...(blog?.authors ?? [])].map(
+                    (author, index) =>
+                      author && (
+                        <ComponentPageBlogAuthor
+                          key={`blog-author-${author._id}`}
+                          item={author}
+                          index={index}
+                          date={blog?.updatedAt ?? ''}
+                        />
+                      )
+                  )}
+                </div>
+              </div>
+            </article>
             <div className="prev-next mt-5 blogs">
               <div className="title border-bottom">
                 <h6 className="d-inline-block w-50">{t('previous')}</h6>
@@ -268,10 +108,14 @@ export default function PageBlogURL() {
               </div>
               <div className="row">
                 <div className="col-md-6 text-start">
-                  {prevBlog ? <PrevBlog /> : null}
+                  {prevBlog ? (
+                    <ComponentPageBlogPrevBlog item={prevBlog} />
+                  ) : null}
                 </div>
                 <div className="col-md-6 text-end">
-                  {nextBlog ? <NextBlog /> : null}
+                  {nextBlog ? (
+                    <ComponentPageBlogNextBlog item={nextBlog} />
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -320,7 +164,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         url: url,
         langId: appState.selectedLangId,
         statusId: StatusId.Active,
-      });
+      }, req.abortController.signal);
 
       if (serviceResultBlog.status && serviceResultBlog.data) {
         const blog = serviceResultBlog.data;
@@ -330,7 +174,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           typeId: blog.typeId,
           langId: appState.selectedLangId,
           url: url,
-        });
+        }, req.abortController.signal);
 
         queries.blog = blog;
 
@@ -339,7 +183,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
           typeId: blog.typeId,
           langId: appState.selectedLangId,
           statusId: StatusId.Active,
-        });
+        }, req.abortController.signal);
 
         if (
           serviceResultBlogPrevNext.status &&
@@ -364,7 +208,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
               ? [serviceResultBlogPrevNext.data.prev._id]
               : []),
           ],
-        });
+        }, req.abortController.signal);
 
         if (
           serviceResultBlogsMightLike.status &&

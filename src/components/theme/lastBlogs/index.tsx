@@ -6,9 +6,7 @@ import { StatusId } from '@constants/status';
 import ComponentBlog from '@components/elements/blog';
 import { AnimationOnScroll } from 'react-animation-on-scroll';
 import { IComponentGetResultService } from 'types/services/component.service';
-import {
-  IComponentWithServerSideProps,
-} from 'types/components/ssr';
+import { IComponentWithServerSideProps } from 'types/components/ssr';
 import { useAppSelector } from '@redux/hooks';
 import { HelperUtil } from '@utils/helper.util';
 import { selectTranslation } from '@redux/features/translationSlice';
@@ -94,13 +92,16 @@ const ComponentThemeLastBlogs: IComponentWithServerSideProps<IComponentProps> =
       if (state.hideShowMoreButton) return;
 
       const newPageNumber = state.pageNumber + 1;
-      const serviceResult = await PostService.getMany({
-        langId: selectedLangId,
-        typeId: [PostTypeId.Blog],
-        statusId: StatusId.Active,
-        count: perPageBlogCount,
-        page: newPageNumber,
-      });
+      const serviceResult = await PostService.getMany(
+        {
+          langId: selectedLangId,
+          typeId: [PostTypeId.Blog],
+          statusId: StatusId.Active,
+          count: perPageBlogCount,
+          page: newPageNumber,
+        },
+        abortControllerRef.current.signal
+      );
       if (serviceResult.status && serviceResult.data) {
         const newBlogs = [...state.lastBlogs, ...(serviceResult.data ?? [])];
         dispatch({ type: ActionTypes.SET_LAST_BLOGS, payload: newBlogs });
@@ -180,20 +181,26 @@ ComponentThemeLastBlogs.componentServerSideProps = async (
   const { appState } = store.getState();
 
   component.customData.lastBlogs = (
-    await PostService.getMany({
-      langId: appState.selectedLangId,
-      typeId: [PostTypeId.Blog],
-      statusId: StatusId.Active,
-      count: perPageBlogCount,
-      page: 1,
-    })
+    await PostService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: [PostTypeId.Blog],
+        statusId: StatusId.Active,
+        count: perPageBlogCount,
+        page: 1,
+      },
+      req.abortController.signal
+    )
   ).data;
 
   component.customData.maxBlogCount = (
-    await PostService.getCount({
-      typeId: PostTypeId.Blog,
-      statusId: StatusId.Active,
-    })
+    await PostService.getCount(
+      {
+        typeId: PostTypeId.Blog,
+        statusId: StatusId.Active,
+      },
+      req.abortController.signal
+    )
   ).data;
 };
 

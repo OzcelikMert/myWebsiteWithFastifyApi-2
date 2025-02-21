@@ -75,12 +75,15 @@ ComponentThemeCategories.componentServerSideProps = async (
   const { appState } = store.getState();
 
   component.customData.categories = (
-    await PostTermService.getMany({
-      langId: appState.selectedLangId,
-      typeId: [PostTermTypeId.Category],
-      postTypeId: PostTypeId.Blog,
-      statusId: StatusId.Active,
-    })
+    await PostTermService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: [PostTermTypeId.Category],
+        postTypeId: PostTypeId.Blog,
+        statusId: StatusId.Active,
+      },
+      req.abortController.signal
+    )
   ).data;
 };
 

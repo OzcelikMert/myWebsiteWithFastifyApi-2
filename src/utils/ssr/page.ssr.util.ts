@@ -17,24 +17,30 @@ import { IComponentWithServerSideProps } from 'types/components/ssr';
 const init = async (store: IAppStore, params: IPageGetParamUtil) => {
   const { appState } = store.getState();
 
-  const serviceResultPage = await PostService.getWithURL({
-    langId: appState.selectedLangId,
-    typeId: PostTypeId.Page,
-    statusId: StatusId.Active,
-    url: params.url ?? '',
-    ...(params.typeId ? { pageTypeId: params.typeId } : {}),
-  });
+  const serviceResultPage = await PostService.getWithURL(
+    {
+      langId: appState.selectedLangId,
+      typeId: PostTypeId.Page,
+      statusId: StatusId.Active,
+      url: params.url ?? '',
+      ...(params.typeId ? { pageTypeId: params.typeId } : {}),
+    },
+    params.req.abortController.signal
+  );
 
   if (serviceResultPage.status && serviceResultPage.data) {
     store.dispatch(setPageState(serviceResultPage.data));
 
     if (params.increaseView) {
-      await PostService.updateViewWithId({
-        _id: serviceResultPage.data._id,
-        typeId: serviceResultPage.data.typeId,
-        langId: appState.selectedLangId ?? '',
-        url: params.url,
-      });
+      await PostService.updateViewWithId(
+        {
+          _id: serviceResultPage.data._id,
+          typeId: serviceResultPage.data.typeId,
+          langId: appState.selectedLangId ?? '',
+          url: params.url,
+        },
+        params.req.abortController.signal
+      );
     }
 
     if (
@@ -53,13 +59,16 @@ const initPrivateComponents = async (
   const { appState, pageState } = store.getState();
 
   if (pageState.page && pageState.page.components) {
-    const serviceResult = await ComponentService.getMany({
-      langId: appState.selectedLangId,
-      typeId: ComponentTypeId.Private,
-      withContent: true,
-      withCustomSort: true,
-      _id: pageState.page.components,
-    });
+    const serviceResult = await ComponentService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: ComponentTypeId.Private,
+        withContent: true,
+        withCustomSort: true,
+        _id: pageState.page.components,
+      },
+      req.abortController.signal
+    );
 
     if (serviceResult.status && serviceResult.data) {
       await initComponentSSRProps(store, req, serviceResult.data);
@@ -71,11 +80,14 @@ const initPrivateComponents = async (
 const initPublicComponents = async (store: IAppStore, req: IncomingMessage) => {
   const { appState, pageState } = store.getState();
 
-  const serviceResult = await ComponentService.getMany({
-    langId: appState.selectedLangId,
-    typeId: ComponentTypeId.Public,
-    withContent: true,
-  });
+  const serviceResult = await ComponentService.getMany(
+    {
+      langId: appState.selectedLangId,
+      typeId: ComponentTypeId.Public,
+      withContent: true,
+    },
+    req.abortController.signal
+  );
 
   if (serviceResult.status && serviceResult.data) {
     await initComponentSSRProps(store, req, serviceResult.data);

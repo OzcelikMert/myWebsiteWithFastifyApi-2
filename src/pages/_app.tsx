@@ -34,6 +34,7 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
 
   if (typeof window === 'undefined' && req && res) {
     const url = UrlSSRUtil.get(req);
+    req.abortController = new AbortController();
     store.dispatch(setURLState(url));
     console.log('MyApp.getInitialProps', url);
 
@@ -70,7 +71,7 @@ MyApp.getInitialProps = wrapper.getInitialAppProps((store) => async (props) => {
     const appState = store.getState().appState;
     const serviceResultSettings = await SettingService.get({
       langId: appState.selectedLangId,
-    });
+    }, req.abortController.signal);
     if (serviceResultSettings.status && serviceResultSettings.data) {
       store.dispatch(setSettingsState(serviceResultSettings.data));
     }

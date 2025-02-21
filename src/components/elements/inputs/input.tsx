@@ -9,6 +9,7 @@ export type IComponentInputProps = {
   errorText?: string;
   as?: 'textarea';
   mutedText?: string;
+  mutedTextClassName?: string;
 } & React.InputHTMLAttributes<HTMLInputElement> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
@@ -21,7 +22,8 @@ const ComponentInput = React.memo(
       'titleElement',
       'size',
       'value',
-      'mutedText'
+      'mutedText',
+      'mutedTextClassName'
     );
 
     return (
@@ -30,11 +32,11 @@ const ComponentInput = React.memo(
           {props.title} {props.titleElement}
         </Form.Label>
         <Form.Control ref={ref} {...inputProps} value={props.value as any} />
-        {props.mutedText ? (
-          <Form.Text className="text-muted">{props.mutedText}</Form.Text>
-        ) : null}
         {props.hasAnError ? (
-          <Form.Text className="text-danger">{props.errorText}</Form.Text>
+          <Form.Text as="p" className="text-danger fs-6 fw-bold"><i className="mdi mdi-information me-2 fs-4"></i>{props.errorText}</Form.Text>
+        ) : null}
+        {props.mutedText ? (
+          <Form.Text className={`${props.mutedTextClassName ?? "text-muted "}`}>{props.mutedText}</Form.Text>
         ) : null}
       </Form.Group>
     );

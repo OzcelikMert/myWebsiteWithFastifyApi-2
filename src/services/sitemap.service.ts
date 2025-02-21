@@ -9,26 +9,32 @@ import {
   ISitemapGetPostTermResultService,
 } from 'types/services/sitemap.service';
 
-const getMaps = () => {
+const getMaps = (signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SITEMAP_WITH.GET_MAPS,
+    signal,
   }).get<ISitemapGetMapsResultService>();
 };
 
-const getPost = (params: ISitemapGetPostParamService) => {
+const getPost = (params: ISitemapGetPostParamService, signal?: AbortSignal) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SITEMAP_WITH.GET_POST,
     data: params,
+    signal,
   }).get<ISitemapGetPostResultService[]>();
 };
 
-const getPostTerm = (params: ISitemapGetPostTermParamService) => {
+const getPostTerm = (
+  params: ISitemapGetPostTermParamService,
+  signal?: AbortSignal
+) => {
   return new ApiRequest({
     apiUrl: PathUtil.getApiURL(),
     endPoint: ApiEndPoints.SITEMAP_WITH.GET_POST_TERM,
     data: params,
+    signal,
   }).get<ISitemapGetPostTermResultService[]>();
 };
 

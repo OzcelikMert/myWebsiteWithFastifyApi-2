@@ -137,12 +137,15 @@ ComponentThemeHotBlogs.componentServerSideProps = async (
   const { appState } = store.getState();
 
   component.customData.hotBlogs = (
-    await PostService.getMany({
-      langId: appState.selectedLangId,
-      typeId: [PostTypeId.Blog],
-      statusId: StatusId.Active,
-      count: 4,
-    })
+    await PostService.getMany(
+      {
+        langId: appState.selectedLangId,
+        typeId: [PostTypeId.Blog],
+        statusId: StatusId.Active,
+        count: 4,
+      },
+      req.abortController.signal
+    )
   ).data;
 };
 
